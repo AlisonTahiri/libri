@@ -55,6 +55,36 @@ export function Reader({
   const lastScrollY = useRef(0);
   const fabTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const contentRef = useRef<HTMLDivElement>(null);
+  const pendingScrollRef = useRef<'top' | 'bottom' | null>(null);
+
+  const handleGoToPrev = () => {
+    pendingScrollRef.current = 'bottom';
+    onGoToPrevChapter();
+  };
+
+  const handleGoToNext = () => {
+    pendingScrollRef.current = 'top';
+    onGoToNextChapter();
+  };
+
+  const handleGoToChapter = (id: string) => {
+    pendingScrollRef.current = 'top';
+    onGoToChapter(id);
+  };
+
+  useEffect(() => {
+    if (!chapterContent) return;
+    
+    // Use setTimeout to ensure DOM has fully updated and layout is calculated
+    setTimeout(() => {
+      if (pendingScrollRef.current === 'bottom') {
+        window.scrollTo(0, document.documentElement.scrollHeight);
+      } else {
+        window.scrollTo(0, 0);
+      }
+      pendingScrollRef.current = null;
+    }, 50);
+  }, [chapterContent?.chapter.id]);
 
   // Handle sentence tap
   const handleSentenceTap = useCallback(
@@ -248,7 +278,7 @@ export function Reader({
           padding: '0 var(--reader-h-padding)',
         }}>
           <button
-            onClick={onGoToPrevChapter}
+            onClick={handleGoToPrev}
             disabled={!hasPrev}
             style={{
               display: 'flex',
@@ -279,7 +309,7 @@ export function Reader({
           </span>
 
           <button
-            onClick={onGoToNextChapter}
+            onClick={handleGoToNext}
             disabled={!hasNext}
             style={{
               display: 'flex',
@@ -346,7 +376,7 @@ export function Reader({
         onClose={() => setChaptersOpen(false)}
         chapters={chapters}
         currentChapterId={chapterContent?.chapter.id ?? null}
-        onSelectChapter={onGoToChapter}
+        onSelectChapter={handleGoToChapter}
       />
     </div>
   );
