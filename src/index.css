@@ -1,0 +1,288 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400;1,7..72,500&display=swap');
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════
+   LIBRI — Design System
+   Three reading themes: Dark (default), Light, Sepia
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Dark Theme (Default) ── */
+:root,
+:root.dark {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-surface: #1c2128;
+  --text-primary: #e6edf3;
+  --text-secondary: #7d8590;
+  --text-muted: #484f58;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --accent-subtle: rgba(88, 166, 255, 0.08);
+  --border: #30363d;
+  --border-subtle: #21262d;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+
+  /* Reader-specific */
+  --reader-bg: #0d1117;
+  --reader-text: #c9d1d9;
+  --sentence-highlight: rgba(88, 166, 255, 0.12);
+  --sentence-active: rgba(88, 166, 255, 0.2);
+  --tooltip-bg: #2d333b;
+  --tooltip-border: #444c56;
+  --tooltip-text: #e6edf3;
+  --tooltip-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  /* FAB */
+  --fab-bg: #2d333b;
+  --fab-icon: #e6edf3;
+  --fab-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+
+  /* Settings panel */
+  --panel-bg: #161b22;
+  --panel-border: #30363d;
+  --slider-track: #30363d;
+  --slider-fill: #58a6ff;
+  --slider-thumb: #e6edf3;
+}
+
+/* ── Light Theme ── */
+:root.light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-surface: #ffffff;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #8b949e;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --accent-subtle: rgba(9, 105, 218, 0.06);
+  --border: #d0d7de;
+  --border-subtle: #e8ebef;
+  --shadow-color: rgba(31, 35, 40, 0.08);
+
+  --reader-bg: #ffffff;
+  --reader-text: #1f2328;
+  --sentence-highlight: rgba(9, 105, 218, 0.08);
+  --sentence-active: rgba(9, 105, 218, 0.15);
+  --tooltip-bg: #ffffff;
+  --tooltip-border: #d0d7de;
+  --tooltip-text: #1f2328;
+  --tooltip-shadow: 0 8px 32px rgba(31, 35, 40, 0.15);
+
+  --fab-bg: #ffffff;
+  --fab-icon: #1f2328;
+  --fab-shadow: 0 4px 16px rgba(31, 35, 40, 0.12);
+
+  --panel-bg: #ffffff;
+  --panel-border: #d0d7de;
+  --slider-track: #d0d7de;
+  --slider-fill: #0969da;
+  --slider-thumb: #ffffff;
+}
+
+/* ── Sepia Theme ── */
+:root.sepia {
+  --bg-primary: #f4ecd8;
+  --bg-secondary: #efe6ce;
+  --bg-surface: #f8f1e0;
+  --text-primary: #5b4636;
+  --text-secondary: #8b7355;
+  --text-muted: #a89478;
+  --accent: #8b6914;
+  --accent-hover: #6d5310;
+  --accent-subtle: rgba(139, 105, 20, 0.08);
+  --border: #d4c5a9;
+  --border-subtle: #e2d6be;
+  --shadow-color: rgba(91, 70, 54, 0.08);
+
+  --reader-bg: #f4ecd8;
+  --reader-text: #5b4636;
+  --sentence-highlight: rgba(139, 105, 20, 0.1);
+  --sentence-active: rgba(139, 105, 20, 0.18);
+  --tooltip-bg: #efe6ce;
+  --tooltip-border: #d4c5a9;
+  --tooltip-text: #5b4636;
+  --tooltip-shadow: 0 8px 32px rgba(91, 70, 54, 0.15);
+
+  --fab-bg: #efe6ce;
+  --fab-icon: #5b4636;
+  --fab-shadow: 0 4px 16px rgba(91, 70, 54, 0.12);
+
+  --panel-bg: #f4ecd8;
+  --panel-border: #d4c5a9;
+  --slider-track: #d4c5a9;
+  --slider-fill: #8b6914;
+  --slider-thumb: #f4ecd8;
+}
+
+/* ── Reader Settings (user-adjustable via CSS vars) ── */
+:root {
+  --reader-font-size: 18px;
+  --reader-line-height: 1.85;
+  --reader-max-width: 680px;
+  --reader-h-padding: 1.5rem;
+  --reader-font-family: 'Literata', Georgia, 'Times New Roman', serif;
+  --ui-font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════════════ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--ui-font-family);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ═══════════════════════════════════════════════════════
+   READER TYPOGRAPHY
+   ═══════════════════════════════════════════════════════ */
+
+.reader-content {
+  font-family: var(--reader-font-family);
+  font-size: var(--reader-font-size);
+  line-height: var(--reader-line-height);
+  color: var(--reader-text);
+  max-width: var(--reader-max-width);
+  margin: 0 auto;
+  padding: 2rem var(--reader-h-padding);
+  text-wrap: pretty;
+  font-variant-numeric: oldstyle-nums;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.reader-paragraph {
+  margin-bottom: 1.2em;
+  text-indent: 0;
+}
+
+.reader-paragraph + .reader-paragraph {
+  /* No text-indent for first paragraph after break, add for subsequent */
+}
+
+/* ═══════════════════════════════════════════════════════
+   SENTENCE INTERACTION
+   ═══════════════════════════════════════════════════════ */
+
+.sentence {
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  padding: 1px 0;
+}
+
+.sentence:hover {
+  background-color: var(--sentence-highlight);
+}
+
+.sentence.active {
+  background-color: var(--sentence-active);
+  box-shadow: 0 0 0 2px var(--sentence-active);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   UTILITY CLASSES
+   ═══════════════════════════════════════════════════════ */
+
+.backdrop-blur {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* Safe area insets for notched devices */
+.safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.safe-top {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+}
