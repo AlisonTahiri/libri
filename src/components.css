@@ -11,6 +11,7 @@
   transition: all 0.25s ease;
   position: relative;
   overflow: hidden;
+  border-color: var(--border);
 }
 
 .book-card::before {
@@ -52,11 +53,13 @@
   font-size: 0.85rem;
   color: var(--text-secondary);
   margin-bottom: 0.75rem;
+  font-style: italic;
 }
 
 .book-card-meta {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.75rem;
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -74,6 +77,21 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.originals-badge {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #5c3c00;
+  box-shadow: 0 2px 6px rgba(255, 165, 0, 0.2);
+}
+
+.book-card-chapters {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+  font-weight: 500;
 }
 
 /* ═══════════════════════════════════════════════════════

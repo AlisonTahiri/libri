@@ -1,35 +1,44 @@
 import type { Book } from '../types';
-import { BookOpen, Globe } from 'lucide-react';
+import { BookOpen, Globe, Sparkles } from 'lucide-react';
 
 interface BookCardProps {
   book: Book;
   onClick: () => void;
 }
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  de: 'Gjermanisht',
-  en: 'Anglisht',
-  fr: 'Frëngjisht',
-  it: 'Italisht',
-  es: 'Spanjisht',
-  sq: 'Shqip',
+const LANGUAGE_ABBREVIATIONS: Record<string, string> = {
+  de: 'DE',
+  en: 'EN',
+  fr: 'FR',
+  it: 'IT',
+  es: 'ES',
+  sq: 'SQ',
 };
 
 export function BookCard({ book, onClick }: BookCardProps) {
-  const sourceLang = LANGUAGE_NAMES[book.source_language] || book.source_language;
-  const targetLang = LANGUAGE_NAMES[book.target_language] || book.target_language;
+  const sourceLang = LANGUAGE_ABBREVIATIONS[book.source_language] || book.source_language.toUpperCase();
+  const targetLang = LANGUAGE_ABBREVIATIONS[book.target_language] || book.target_language.toUpperCase();
+
+  const isOriginal = book.author === 'Libri Originals';
+  const displayAuthor = isOriginal ? null : book.author;
 
   return (
     <div className="book-card" onClick={onClick} role="button" tabIndex={0}>
       <h3 className="book-card-title">{book.title}</h3>
-      {book.author && <p className="book-card-author">{book.author}</p>}
+      {displayAuthor && <p className="book-card-author">by {displayAuthor}</p>}
 
       <div className="book-card-meta">
+        {isOriginal && (
+          <span className="book-card-badge originals-badge">
+            <Sparkles size={10} />
+            Originals
+          </span>
+        )}
         <span className="book-card-badge">
           <Globe size={10} />
           {sourceLang} → {targetLang}
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+        <span className="book-card-chapters">
           <BookOpen size={12} />
           {book.total_chapters} kapituj
         </span>

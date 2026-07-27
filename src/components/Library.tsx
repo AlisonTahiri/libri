@@ -241,7 +241,7 @@ export function Library({ books, loading, onOpenBook, onOpenEpub }: LibraryProps
           color: 'var(--text-primary)',
           marginBottom: '1rem',
         }}>
-          Librat Dygjuhësh
+        Libraria Jonë
         </h2>
         {books.length > 0 ? (
           <div className="library-grid">
