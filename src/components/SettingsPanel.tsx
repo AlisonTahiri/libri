@@ -21,10 +21,10 @@ interface SettingsPanelProps {
   onSetLineHeight: (lh: number) => void;
   onSetMaxWidth: (mw: number) => void;
   onSetHPadding: (hp: number) => void;
-  isFullscreen: boolean;
-  onToggleFullscreen: () => void;
-  onOpenChapters: () => void;
-  onBackToLibrary: () => void;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
+  onOpenChapters?: () => void;
+  onBackToLibrary?: () => void;
   isEpub?: boolean;
 }
 
@@ -168,68 +168,74 @@ export function SettingsPanel({
 
               {/* Actions */}
               <div className="panel-section" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <button
-                  onClick={onToggleFullscreen}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.7rem 1rem',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border)',
-                    background: 'transparent',
-                    color: 'var(--text-primary)',
-                    fontFamily: 'var(--ui-font-family)',
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                    transition: 'background 0.15s ease',
-                  }}
-                >
-                  {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-                  {isFullscreen ? 'Dil nga ekrani i plotë' : 'Ekran i plotë'}
-                </button>
+                {onToggleFullscreen && (
+                  <button
+                    onClick={onToggleFullscreen}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      padding: '0.7rem 1rem',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'transparent',
+                      color: 'var(--text-primary)',
+                      fontFamily: 'var(--ui-font-family)',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      transition: 'background 0.15s ease',
+                    }}
+                  >
+                    {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+                    {isFullscreen ? 'Dil nga ekrani i plotë' : 'Ekran i plotë'}
+                  </button>
+                )}
 
-                <button
-                  onClick={() => { onOpenChapters(); onClose(); }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.7rem 1rem',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border)',
-                    background: 'transparent',
-                    color: 'var(--text-primary)',
-                    fontFamily: 'var(--ui-font-family)',
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                    transition: 'background 0.15s ease',
-                  }}
-                >
-                  <List size={16} />
-                  Kapitujt
-                </button>
+                {onOpenChapters && (
+                  <button
+                    onClick={() => { onOpenChapters(); onClose(); }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      padding: '0.7rem 1rem',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'transparent',
+                      color: 'var(--text-primary)',
+                      fontFamily: 'var(--ui-font-family)',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      transition: 'background 0.15s ease',
+                    }}
+                  >
+                    <List size={16} />
+                    Kapitujt
+                  </button>
+                )}
 
-                <button
-                  onClick={() => { onBackToLibrary(); onClose(); }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.7rem 1rem',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border)',
-                    background: 'transparent',
-                    color: 'var(--text-secondary)',
-                    fontFamily: 'var(--ui-font-family)',
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                    transition: 'background 0.15s ease',
-                  }}
-                >
-                  <ArrowLeft size={16} />
-                  Kthehu te Biblioteka
-                </button>
+                {onBackToLibrary && (
+                  <button
+                    onClick={() => { onBackToLibrary(); onClose(); }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      padding: '0.7rem 1rem',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'transparent',
+                      color: 'var(--text-secondary)',
+                      fontFamily: 'var(--ui-font-family)',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      transition: 'background 0.15s ease',
+                    }}
+                  >
+                    <ArrowLeft size={16} />
+                    Kthehu te Biblioteka
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

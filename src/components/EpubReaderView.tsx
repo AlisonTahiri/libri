@@ -325,10 +325,6 @@ export function EpubReaderView({
         zIndex: 5,
         background: outerBg,
         borderBottom: `1px solid ${borderColor}`,
-        padding: '12px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
         transform: uiVisible ? 'translateY(0)' : 'translateY(-100%)',
         transition: 'transform 0.25s ease',
         position: uiVisible ? 'relative' : 'absolute',
@@ -336,40 +332,52 @@ export function EpubReaderView({
         left: 0,
         right: 0,
       }}>
-        <button
-          onClick={(e) => { e.stopPropagation(); onBack(); }}
-          style={{
-            background: 'transparent',
-            border: 'none',
+        <div style={{
+          maxWidth: '900px',
+          margin: '0 auto',
+          padding: '12px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+        }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); onBack(); }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: mutedTextColor,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontFamily: 'var(--ui-font-family)',
+              fontSize: '0.95rem',
+              padding: '4px 8px',
+              marginLeft: '-8px',
+              borderRadius: '6px',
+            }}
+          >
+            <ChevronLeft size={18} />
+            Mbrapsht
+          </button>
+          
+          <div style={{ 
+            fontSize: '0.85rem', 
+            fontWeight: 500, 
             color: mutedTextColor,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
             fontFamily: 'var(--ui-font-family)',
-            fontSize: '0.95rem',
-            padding: '4px 8px',
-            marginLeft: '-8px',
-          }}
-        >
-          <ChevronLeft size={20} />
-          Mbrapsht
-        </button>
-
-        <span 
-          style={{ 
-            color: textColor, 
-            fontSize: '0.9rem',
-            fontWeight: 500,
             maxWidth: '60%',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis'
-          }}
-        >
-          {currentChapterTitle || book.title}
-        </span>
-        <div style={{ width: '40px' }} />
+          }}>
+            {currentChapterTitle || book.title}
+          </div>
+          
+          {/* Invisible spacer to perfectly center the title if needed */}
+          <div style={{ width: '70px' }} />
+        </div>
       </header>
 
       {/* Main EPUB Reader Viewer Container */}
@@ -383,66 +391,65 @@ export function EpubReaderView({
           justifyContent: 'center',
         }} 
       >
-        <div 
-          ref={viewerRef} 
-          style={{ 
-            width: '100%',
-            maxWidth: '900px',
-            height: '100%',
-            position: 'relative',
-          }}
-        />
+        <div style={{
+          width: '100%',
+          maxWidth: '900px',
+          height: '100%',
+          position: 'relative',
+        }}>
+          <div 
+            ref={viewerRef} 
+            style={{ 
+              width: '100%',
+              height: '100%',
+            }}
+          />
 
-        {/* Desktop Navigation Hover Arrows */}
-        <button
-          onClick={handlePrevPage}
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: '5%',
-            minWidth: '30px',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            opacity: 0,
-            transition: 'opacity 0.2s ease',
-            zIndex: 4,
-          }}
-          aria-label="Faqja e mëparshme"
-        />
+          {/* Desktop Navigation Hover Arrows */}
+          <button
+            onClick={handlePrevPage}
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: '5%',
+              minWidth: '30px',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              opacity: 0,
+              transition: 'opacity 0.2s ease',
+              zIndex: 4,
+            }}
+            aria-label="Faqja e mëparshme"
+          />
 
-        <button
-          onClick={handleNextPage}
-          style={{
-            position: 'absolute',
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: '5%',
-            minWidth: '30px',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            opacity: 0,
-            transition: 'opacity 0.2s ease',
-            zIndex: 4,
-          }}
-          aria-label="Faqja tjetër"
-        />
+          <button
+            onClick={handleNextPage}
+            style={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: '5%',
+              minWidth: '30px',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              opacity: 0,
+              transition: 'opacity 0.2s ease',
+              zIndex: 4,
+            }}
+            aria-label="Faqja tjetër"
+          />
+        </div>
       </div>
 
       {/* Bottom Status / Footer Bar */}
       <footer
         style={{
           flexShrink: 0,
-          padding: '8px 16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontSize: '0.75rem',
-          color: mutedTextColor,
           borderTop: `1px solid ${borderColor}`,
           background: outerBg,
           zIndex: 5,
@@ -454,14 +461,26 @@ export function EpubReaderView({
           right: 0,
         }}
       >
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>
-          {currentChapterTitle || book.title}
-        </span>
-        <span style={{ fontWeight: 600 }}>
-          {pageInfo.total > 0
-            ? `Faqja ${pageInfo.current} / ${pageInfo.total}`
-            : (progress > 0 ? `${progress}%` : '')}
-        </span>
+        <div style={{
+          maxWidth: '900px',
+          margin: '0 auto',
+          padding: '8px 16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '0.75rem',
+          color: mutedTextColor,
+          width: '100%',
+        }}>
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>
+            {currentChapterTitle || book.title}
+          </span>
+          <span style={{ fontWeight: 600 }}>
+            {pageInfo.total > 0
+              ? `Faqja ${pageInfo.current} / ${pageInfo.total}`
+              : (progress > 0 ? `${progress}%` : '')}
+          </span>
+        </div>
       </footer>
 
       {/* FAB Settings Button */}

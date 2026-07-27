@@ -1,20 +1,39 @@
-import { useRef } from 'react';
-import type { Book } from '../types';
+import { useRef, useState } from 'react';
+import type { Book, ReaderSettings, Theme } from '../types';
 import { BookCard } from './BookCard';
-import { BookOpen, Upload, Trash2, Pencil } from 'lucide-react';
+import { BookOpen, Upload, Settings, Trash2, Pencil } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type EpubBook } from '../lib/db';
+import { SettingsPanel } from './SettingsPanel';
 
 interface LibraryProps {
   books: Book[];
   loading: boolean;
   onOpenBook: (book: Book) => void;
   onOpenEpub: (book: EpubBook) => void;
+  settings: ReaderSettings;
+  onSetTheme: (theme: Theme) => void;
+  onSetFontSize: (size: number) => void;
+  onSetLineHeight: (height: number) => void;
+  onSetMaxWidth: (width: number) => void;
+  onSetHPadding: (padding: number) => void;
 }
 
-export function Library({ books, loading, onOpenBook, onOpenEpub }: LibraryProps) {
+export function Library({ 
+  books, 
+  loading, 
+  onOpenBook, 
+  onOpenEpub,
+  settings,
+  onSetTheme,
+  onSetFontSize,
+  onSetLineHeight,
+  onSetMaxWidth,
+  onSetHPadding
+}: LibraryProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const epubBooks = useLiveQuery(() => db.epubBooks.orderBy('addedAt').reverse().toArray()) || [];
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -99,7 +118,26 @@ export function Library({ books, loading, onOpenBook, onOpenEpub }: LibraryProps
           </p>
         </div>
         
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            onClick={() => setSettingsOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '38px',
+              height: '38px',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+            }}
+            aria-label="Cilësimet"
+          >
+            <Settings size={18} />
+          </button>
+
           <input 
             type="file" 
             accept=".epub" 
@@ -263,6 +301,16 @@ export function Library({ books, loading, onOpenBook, onOpenEpub }: LibraryProps
           </div>
         )}
       </div>
+      <SettingsPanel
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        settings={settings}
+        onSetTheme={onSetTheme}
+        onSetFontSize={onSetFontSize}
+        onSetLineHeight={onSetLineHeight}
+        onSetMaxWidth={onSetMaxWidth}
+        onSetHPadding={onSetHPadding}
+      />
     </div>
   );
 }

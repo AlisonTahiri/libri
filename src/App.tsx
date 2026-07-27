@@ -78,6 +78,12 @@ function App() {
       loading={loading}
       onOpenBook={openBook}
       onOpenEpub={setCurrentEpub}
+      settings={settings}
+      onSetTheme={setTheme}
+      onSetFontSize={setFontSize}
+      onSetLineHeight={setLineHeight}
+      onSetMaxWidth={setMaxWidth}
+      onSetHPadding={setHPadding}
     />
   );
 }
