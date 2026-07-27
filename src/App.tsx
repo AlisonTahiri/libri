@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { useReader } from './hooks/useReader';
 import { useReaderSettings } from './hooks/useReaderSettings';
 import { Library } from './components/Library';
 import { Reader } from './components/Reader';
+import { EpubReaderView } from './components/EpubReaderView';
+import type { EpubBook } from './lib/db';
 
 function App() {
   const {
@@ -27,7 +30,25 @@ function App() {
     setHPadding,
   } = useReaderSettings();
 
-  // If a book is open, show the reader
+  const [currentEpub, setCurrentEpub] = useState<EpubBook | null>(null);
+
+  // If an EPUB book is open, show the EPUB reader
+  if (currentEpub) {
+    return (
+      <EpubReaderView
+        book={currentEpub}
+        settings={settings}
+        onSetTheme={setTheme}
+        onSetFontSize={setFontSize}
+        onSetLineHeight={setLineHeight}
+        onSetMaxWidth={setMaxWidth}
+        onSetHPadding={setHPadding}
+        onBack={() => setCurrentEpub(null)}
+      />
+    );
+  }
+
+  // If a bilingual book is open, show the bilingual reader
   if (currentBook) {
     return (
       <Reader
@@ -56,6 +77,7 @@ function App() {
       books={books}
       loading={loading}
       onOpenBook={openBook}
+      onOpenEpub={setCurrentEpub}
     />
   );
 }
