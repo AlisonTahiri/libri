@@ -297,7 +297,6 @@ export function EpubReaderView({
   const isDark = settings.theme === 'dark';
   const isSepia = settings.theme === 'sepia';
   const outerBg = isDark ? '#111827' : (isSepia ? '#f4ecd8' : '#FFFFFF');
-  const textColor = isDark ? '#e5e7eb' : (isSepia ? '#5b4636' : '#111827');
   const mutedTextColor = isDark ? '#9ca3af' : (isSepia ? '#8b6914' : '#6b7280');
   const borderColor = isDark ? '#374151' : (isSepia ? '#d5c8a0' : '#e5e7eb');
 
