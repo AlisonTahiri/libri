@@ -185,7 +185,7 @@ export function EpubReaderView({
 
         // If not swipe, check if it's a tap
         if (deltaTime < 300 && Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
-          const width = doc.documentElement.clientWidth || window.innerWidth;
+          const width = window.innerWidth;
           const clickX = touch.clientX;
           const leftZone = width * 0.3;
           const rightZone = width * 0.7;
@@ -206,7 +206,7 @@ export function EpubReaderView({
         const selection = doc.getSelection();
         if (selection && selection.toString().length > 0) return;
 
-        const width = doc.documentElement.clientWidth || window.innerWidth;
+        const width = window.innerWidth;
         const clickX = e.clientX;
         const leftZone = width * 0.3;
         const rightZone = width * 0.7;
@@ -379,13 +379,17 @@ export function EpubReaderView({
           position: 'relative',
           background: 'transparent',
           overflow: 'hidden',
+          display: 'flex',
+          justifyContent: 'center',
         }} 
       >
         <div 
           ref={viewerRef} 
           style={{ 
             width: '100%',
+            maxWidth: '900px',
             height: '100%',
+            position: 'relative',
           }}
         />
 
