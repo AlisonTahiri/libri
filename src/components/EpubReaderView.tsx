@@ -33,7 +33,9 @@ export function EpubReaderView({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [chaptersOpen, setChaptersOpen] = useState(false);
   
-  const [fabVisible, setFabVisible] = useState(true);
+  const [uiVisible, setUiVisible] = useState(true);
+  const [progress, setProgress] = useState<number>(0);
+  const [pageInfo, setPageInfo] = useState<{ current: number; total: number }>({ current: 0, total: 0 });
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [currentChapterTitle, setCurrentChapterTitle] = useState<string>('');
 
@@ -42,26 +44,15 @@ export function EpubReaderView({
   const viewerRef = useRef<HTMLDivElement>(null);
   const bookRef = useRef<Book | null>(null);
   const renditionRef = useRef<Rendition | null>(null);
-  const fabTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const settingsRef = useRef(settings);
+
+  // Touch tracking for swipe inside iframe
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
   // Keep ref in sync for event listeners
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings]);
-
-  useEffect(() => {
-    setFabVisible(true);
-    if (fabTimeoutRef.current) clearTimeout(fabTimeoutRef.current);
-    fabTimeoutRef.current = setTimeout(() => setFabVisible(false), 3000);
-    return () => { if (fabTimeoutRef.current) clearTimeout(fabTimeoutRef.current); };
-  }, []);
-
-  const handleTouch = () => {
-    setFabVisible(true);
-    if (fabTimeoutRef.current) clearTimeout(fabTimeoutRef.current);
-    fabTimeoutRef.current = setTimeout(() => setFabVisible(false), 3000);
-  };
 
   const applyTheme = useCallback((rendition: Rendition, currentSettings: ReaderSettings) => {
     const isDark = currentSettings.theme === 'dark';
@@ -91,12 +82,14 @@ export function EpubReaderView({
         'font-family': 'Literata, Georgia, "Times New Roman", serif !important',
         'padding-left': '1.5rem !important',
         'padding-right': '1.5rem !important',
-        'margin': '0 auto !important',
         'padding-top': '1rem !important',
-        'padding-bottom': '2rem !important',
+        'padding-bottom': '1rem !important',
+        'box-sizing': 'border-box !important',
+        'user-select': 'none',
+        '-webkit-user-select': 'none',
       },
       p: {
-        'text-align': 'left !important',
+        'text-align': 'justify !important',
       },
       a: { color: linkColor },
       '::selection': { background: selectionBg },
@@ -111,14 +104,25 @@ export function EpubReaderView({
   useEffect(() => {
     if (renditionRef.current) {
       applyTheme(renditionRef.current, settings);
-      // Force epub.js to recalculate layout with new CSS (padding, max-width)
       try {
         (renditionRef.current as any).resize();
       } catch (_) { /* ignore if not ready */ }
     }
   }, [settings, applyTheme]);
 
-  // Mount epub.js
+  const handleNextPage = useCallback(() => {
+    if (renditionRef.current) {
+      renditionRef.current.next();
+    }
+  }, []);
+
+  const handlePrevPage = useCallback(() => {
+    if (renditionRef.current) {
+      renditionRef.current.prev();
+    }
+  }, []);
+
+  // Mount epub.js in PAGINATED mode
   useEffect(() => {
     if (!viewerRef.current) return;
 
@@ -126,130 +130,128 @@ export function EpubReaderView({
     const newBook = Epub(book.fileData as any);
     bookRef.current = newBook;
 
-    // Create rendition (one chapter at a time, scrollable)
+    // Create rendition in paginated mode
     const rendition = newBook.renderTo(viewerRef.current, {
       width: '100%',
       height: '100%',
-      flow: 'scrolled-doc',
+      flow: 'paginated',
       spread: 'none',
-      // We explicitly DO NOT use continuous manager so it renders chapter-by-chapter
-      // manager: 'default' is the default
     });
     renditionRef.current = rendition;
 
     // Initial theme
     applyTheme(rendition, settingsRef.current);
 
-    // Inject Prev/Next footer at the bottom of every chapter
-    rendition.on('rendered', (section: any, view: any) => {
+    // Register touch & click events inside the iframe for tap zones and swipe
+    rendition.on('rendered', (_section: any, view: any) => {
       applyTheme(rendition, settingsRef.current);
 
       const doc = view.document;
       if (!doc) return;
 
-      const isDark = settingsRef.current.theme === 'dark';
-      const borderColor = isDark ? '#374151' : '#e5e7eb';
-      const accentColor = isDark ? '#60A5FA' : '#2563EB';
+      // Touch handlers for swipe & tap inside iframe
+      doc.addEventListener('touchstart', (e: TouchEvent) => {
+        const touch = e.touches[0];
+        if (touch) {
+          touchStartRef.current = {
+            x: touch.clientX,
+            y: touch.clientY,
+            time: Date.now(),
+          };
+        }
+      }, { passive: true });
 
-      const footerHtml = `
-        <div style="
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin: 4rem auto 2rem;
-          padding-top: 2rem;
-          border-top: 1px solid ${borderColor};
-          max-width: ${settingsRef.current.maxWidth}px;
-        ">
-          <button id="btn-epub-prev" style="
-            display: flex; align-items: center; gap: 0.4rem;
-            padding: 0.6rem 1rem; border-radius: 8px;
-            border: 1px solid ${borderColor};
-            background: transparent; color: ${accentColor};
-            font-family: inherit; font-size: 0.85rem; cursor: pointer;
-          ">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            Para
-          </button>
-          
-          <span id="btn-epub-top" style="
-            font-size: 0.8rem; color: ${isDark ? '#9ca3af' : '#6b7280'}; cursor: pointer; text-decoration: underline;
-          ">
-            Lart
-          </span>
+      doc.addEventListener('touchend', (e: TouchEvent) => {
+        if (!touchStartRef.current) return;
+        const touch = e.changedTouches[0];
+        if (!touch) return;
 
-          <button id="btn-epub-next" style="
-            display: flex; align-items: center; gap: 0.4rem;
-            padding: 0.6rem 1rem; border-radius: 8px;
-            border: 1px solid ${borderColor};
-            background: transparent; color: ${accentColor};
-            font-family: inherit; font-size: 0.85rem; cursor: pointer;
-          ">
-            Pas
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          </button>
-        </div>
-      `;
+        const deltaX = touch.clientX - touchStartRef.current.x;
+        const deltaY = touch.clientY - touchStartRef.current.y;
+        const deltaTime = Date.now() - touchStartRef.current.time;
+        touchStartRef.current = null;
 
-      // Remove old footer if exists (just in case)
-      const oldFooter = doc.getElementById('epub-custom-footer');
-      if (oldFooter) oldFooter.remove();
+        // Check if it's a swipe (fast enough & horizontal enough)
+        if (deltaTime < 500 && Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+          if (deltaX < 0) {
+            // Swipe left -> Next Page
+            rendition.next();
+          } else {
+            // Swipe right -> Prev Page
+            rendition.prev();
+          }
+          return;
+        }
 
-      const footer = doc.createElement('div');
-      footer.id = 'epub-custom-footer';
-      footer.innerHTML = footerHtml;
-      doc.body.appendChild(footer);
+        // If not swipe, check if it's a tap
+        if (deltaTime < 300 && Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+          const width = doc.documentElement.clientWidth || window.innerWidth;
+          const clickX = touch.clientX;
+          const leftZone = width * 0.3;
+          const rightZone = width * 0.7;
 
-      // Event listeners
-      doc.getElementById('btn-epub-prev').onclick = () => {
-        rendition.prev().then(() => {
-          // Scroll to bottom of the previous chapter
-          setTimeout(() => {
-            const currentView = rendition.manager?.views?._views[0];
-            if (currentView && currentView.document) {
-              const body = currentView.document.body;
-              const html = currentView.document.documentElement;
-              const maxScroll = Math.max(body.scrollHeight, html.scrollHeight) - currentView.document.defaultView.innerHeight;
-              currentView.document.defaultView.scrollTo(0, maxScroll);
-            }
-          }, 100); // small delay to allow DOM render
-        });
-      };
+          if (clickX < leftZone) {
+            rendition.prev();
+          } else if (clickX > rightZone) {
+            rendition.next();
+          } else {
+            setUiVisible(prev => !prev);
+          }
+        }
+      }, { passive: true });
 
-      doc.getElementById('btn-epub-next').onclick = () => {
-        rendition.next().then(() => {
-          // ensure top
-          setTimeout(() => {
-            const currentView = rendition.manager?.views?._views[0];
-            if (currentView && currentView.document) {
-              currentView.document.defaultView.scrollTo(0, 0);
-            }
-          }, 50);
-        });
-      };
+      // Click handler (for desktop browsers)
+      doc.addEventListener('click', (e: MouseEvent) => {
+        // Prevent click handling if user is selecting text
+        const selection = doc.getSelection();
+        if (selection && selection.toString().length > 0) return;
 
-      doc.getElementById('btn-epub-top').onclick = () => {
-        view.document.defaultView.scrollTo({ top: 0, behavior: 'smooth' });
-      };
+        const width = doc.documentElement.clientWidth || window.innerWidth;
+        const clickX = e.clientX;
+        const leftZone = width * 0.3;
+        const rightZone = width * 0.7;
+
+        if (clickX < leftZone) {
+          rendition.prev();
+        } else if (clickX > rightZone) {
+          rendition.next();
+        } else {
+          setUiVisible(prev => !prev);
+        }
+      });
     });
 
-    // Handle location tracking
+    // Handle location & progress tracking
     rendition.on('relocated', (loc: any) => {
       const cfi = loc.start.cfi;
       setLocation(cfi);
       db.epubBooks.update(book.id, { lastLocation: cfi }).catch(console.error);
 
+      // Update progress percentage & page numbers if locations are ready
+      if (newBook.locations && newBook.locations.length() > 0) {
+        const pct = newBook.locations.percentageFromCfi(cfi);
+        if (typeof pct === 'number') {
+          setProgress(Math.round(pct * 100));
+        }
+
+        const currentLoc = loc.start.location;
+        const totalLocs = newBook.locations.length();
+        if (typeof currentLoc === 'number' && typeof totalLocs === 'number' && totalLocs > 0) {
+          setPageInfo({ current: currentLoc + 1, total: totalLocs });
+        }
+      }
+
       // Find current chapter for header title
       setChapters(prev => {
         if (prev.length > 0 && loc.start.href) {
           const match = prev.slice().reverse().find(ch => loc.start.href.includes(ch.id));
-          if (match) setCurrentChapterTitle(match.title);
+          if (match && match.title) setCurrentChapterTitle(match.title);
         }
         return prev;
       });
     });
 
-    // Extract TOC
+    // Extract TOC & Generate Locations
     newBook.loaded.navigation.then(nav => {
       const toc = nav.toc.map((item: any, i: number) => ({
         id: item.href,
@@ -261,6 +263,19 @@ export function EpubReaderView({
       setChapters(toc);
     });
 
+    newBook.ready.then(() => {
+      return newBook.locations.generate(1000);
+    }).then(() => {
+      // Refresh location percentage after location generation
+      if (renditionRef.current) {
+        const curLoc = renditionRef.current.currentLocation() as any;
+        if (curLoc?.start?.cfi) {
+          const pct = newBook.locations.percentageFromCfi(curLoc.start.cfi);
+          if (typeof pct === 'number') setProgress(Math.round(pct * 100));
+        }
+      }
+    }).catch(console.error);
+
     // Display book at saved location or start
     rendition.display(book.lastLocation || undefined);
 
@@ -269,7 +284,7 @@ export function EpubReaderView({
         newBook.destroy();
       }
     };
-  }, [book.fileData, book.id]); // Removed applyTheme and book.lastLocation to prevent remounting
+  }, [book.fileData, book.id, applyTheme]);
 
   const handleSelectChapter = (href: string) => {
     if (renditionRef.current) {
@@ -282,30 +297,51 @@ export function EpubReaderView({
   const isDark = settings.theme === 'dark';
   const isSepia = settings.theme === 'sepia';
   const outerBg = isDark ? '#111827' : (isSepia ? '#f4ecd8' : '#FFFFFF');
+  const textColor = isDark ? '#e5e7eb' : (isSepia ? '#5b4636' : '#111827');
+  const mutedTextColor = isDark ? '#9ca3af' : (isSepia ? '#8b6914' : '#6b7280');
+  const borderColor = isDark ? '#374151' : (isSepia ? '#d5c8a0' : '#e5e7eb');
 
   return (
     <div 
-      style={{ display: 'flex', flexDirection: 'column', height: '100dvh', width: '100%', background: outerBg, overflow: 'hidden' }}
-      onTouchStart={handleTouch}
-      onClick={handleTouch}
+      style={{ display: 'flex', flexDirection: 'column', height: '100dvh', width: '100%', background: outerBg, overflow: 'hidden', userSelect: 'none' }}
     >
-      {/* Custom Top Bar */}
+      {/* Reading Progress Bar (Top) */}
+      <div 
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          height: '3px',
+          width: `${progress}%`,
+          background: 'var(--accent)',
+          zIndex: 10,
+          transition: 'width 0.3s ease',
+        }} 
+      />
+
+      {/* Top Header Bar */}
       <header className="reader-header safe-top" style={{ 
         flexShrink: 0,
-        zIndex: 2,
+        zIndex: 5,
         background: outerBg,
-        borderBottom: `1px solid ${isDark ? '#374151' : (isSepia ? '#d5c8a0' : '#e5e7eb')}`,
+        borderBottom: `1px solid ${borderColor}`,
         padding: '12px 16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        transform: uiVisible ? 'translateY(0)' : 'translateY(-100%)',
+        transition: 'transform 0.25s ease',
+        position: uiVisible ? 'relative' : 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
       }}>
         <button
           onClick={(e) => { e.stopPropagation(); onBack(); }}
           style={{
             background: 'transparent',
             border: 'none',
-            color: isDark ? '#9ca3af' : (isSepia ? '#8b6914' : '#4b5563'),
+            color: mutedTextColor,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -322,7 +358,7 @@ export function EpubReaderView({
 
         <span 
           style={{ 
-            color: isDark ? '#e5e7eb' : (isSepia ? '#5b4636' : '#111827'), 
+            color: textColor, 
             fontSize: '0.9rem',
             fontWeight: 500,
             maxWidth: '60%',
@@ -333,28 +369,103 @@ export function EpubReaderView({
         >
           {currentChapterTitle || book.title}
         </span>
-        <div style={{ width: '40px' }} /> {/* Spacer for balance */}
+        <div style={{ width: '40px' }} />
       </header>
 
-      {/* Pure epub.js Container */}
+      {/* Main EPUB Reader Viewer Container */}
       <div 
-        ref={viewerRef} 
         style={{ 
           flexGrow: 1,
           position: 'relative',
-          overflow: 'auto',
-          WebkitOverflowScrolling: 'touch',
           background: 'transparent',
+          overflow: 'hidden',
         }} 
-      />
+      >
+        <div 
+          ref={viewerRef} 
+          style={{ 
+            width: '100%',
+            height: '100%',
+          }}
+        />
 
-      {/* FAB */}
+        {/* Desktop Navigation Hover Arrows */}
+        <button
+          onClick={handlePrevPage}
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: '5%',
+            minWidth: '30px',
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            opacity: 0,
+            transition: 'opacity 0.2s ease',
+            zIndex: 4,
+          }}
+          aria-label="Faqja e mëparshme"
+        />
+
+        <button
+          onClick={handleNextPage}
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: '5%',
+            minWidth: '30px',
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            opacity: 0,
+            transition: 'opacity 0.2s ease',
+            zIndex: 4,
+          }}
+          aria-label="Faqja tjetër"
+        />
+      </div>
+
+      {/* Bottom Status / Footer Bar */}
+      <footer
+        style={{
+          flexShrink: 0,
+          padding: '8px 16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '0.75rem',
+          color: mutedTextColor,
+          borderTop: `1px solid ${borderColor}`,
+          background: outerBg,
+          zIndex: 5,
+          transform: uiVisible ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.25s ease',
+          position: uiVisible ? 'relative' : 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+        }}
+      >
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>
+          {currentChapterTitle || book.title}
+        </span>
+        <span style={{ fontWeight: 600 }}>
+          {pageInfo.total > 0
+            ? `Faqja ${pageInfo.current} / ${pageInfo.total}`
+            : (progress > 0 ? `${progress}%` : '')}
+        </span>
+      </footer>
+
+      {/* FAB Settings Button */}
       <button
-        className={`fab ${fabVisible ? '' : 'hidden'}`}
+        className={`fab ${uiVisible ? '' : 'hidden'}`}
         onClick={(e) => {
           e.stopPropagation();
           setSettingsOpen(true);
-          setFabVisible(true);
         }}
         aria-label="Cilësimet"
         style={{ zIndex: 10, pointerEvents: 'auto' }}
@@ -390,20 +501,6 @@ export function EpubReaderView({
         currentChapterId={location.toString()}
         onSelectChapter={handleSelectChapter}
       />
-
-      {/* epub.js internal layout fixes */}
-      <style>{`
-        .epub-container {
-          overflow-y: auto !important;
-          -webkit-overflow-scrolling: touch;
-        }
-        .epub-view {
-          overflow: visible !important;
-        }
-        .epub-view iframe {
-          overflow: visible !important;
-        }
-      `}</style>
     </div>
   );
 }
