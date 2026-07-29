@@ -20,6 +20,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
   const targetLang = LANGUAGE_ABBREVIATIONS[book.target_language] || book.target_language.toUpperCase();
 
   const isOriginal = book.author === 'Libri Originals';
+  const displayTargetLang = isOriginal ? 'EN/SQ' : targetLang;
   const displayAuthor = isOriginal ? null : book.author;
 
   return (
@@ -42,7 +43,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
         )}
         <span className="book-card-badge">
           <Globe size={10} />
-          {sourceLang} → {targetLang}
+          {sourceLang} → {displayTargetLang}
         </span>
         <span className="book-card-chapters">
           <BookOpen size={12} />
