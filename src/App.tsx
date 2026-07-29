@@ -3,8 +3,8 @@ import { useReader } from './hooks/useReader';
 import { useReaderSettings } from './hooks/useReaderSettings';
 import { Library } from './components/Library';
 import { Reader } from './components/Reader';
-import { EpubReaderView } from './components/EpubReaderView';
-import type { EpubBook } from './lib/db';
+import { EpubChapterReader } from './components/EpubChapterReader';
+import { db, type EpubBook, type EpubChapter } from './lib/db';
 
 function App() {
   const {
@@ -31,19 +31,29 @@ function App() {
   } = useReaderSettings();
 
   const [currentEpub, setCurrentEpub] = useState<EpubBook | null>(null);
+  const [epubChapters, setEpubChapters] = useState<EpubChapter[]>([]);
 
-  // If an EPUB book is open, show the EPUB reader
-  if (currentEpub) {
+  const handleOpenEpub = async (book: EpubBook) => {
+    const chs = await db.epubChapters
+      .where('bookId').equals(book.id)
+      .sortBy('orderIndex');
+    setEpubChapters(chs);
+    setCurrentEpub(book);
+  };
+
+  // If an EPUB book is open, show the EPUB chapter reader
+  if (currentEpub && epubChapters.length > 0) {
     return (
-      <EpubReaderView
+      <EpubChapterReader
         book={currentEpub}
+        chapters={epubChapters}
         settings={settings}
         onSetTheme={setTheme}
         onSetFontSize={setFontSize}
         onSetLineHeight={setLineHeight}
         onSetMaxWidth={setMaxWidth}
         onSetHPadding={setHPadding}
-        onBack={() => setCurrentEpub(null)}
+        onBack={() => { setCurrentEpub(null); setEpubChapters([]); }}
       />
     );
   }
@@ -77,7 +87,7 @@ function App() {
       books={books}
       loading={loading}
       onOpenBook={openBook}
-      onOpenEpub={setCurrentEpub}
+      onOpenEpub={handleOpenEpub}
       settings={settings}
       onSetTheme={setTheme}
       onSetFontSize={setFontSize}

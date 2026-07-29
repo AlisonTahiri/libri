@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react';
 import type { Book, ReaderSettings, Theme } from '../types';
 import { BookCard } from './BookCard';
-import { BookOpen, Upload, Settings, Trash2, Pencil } from 'lucide-react';
+import { BookOpen, Upload, Settings, Trash2, Pencil, Loader } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type EpubBook } from '../lib/db';
 import { SettingsPanel } from './SettingsPanel';
+import { parseEpub } from '../services/epubParser';
 
 interface LibraryProps {
   books: Book[];
@@ -34,33 +35,61 @@ export function Library({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const epubBooks = useLiveQuery(() => db.epubBooks.orderBy('addedAt').reverse().toArray()) || [];
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Use filename as a simple unique ID
-    const id = file.name;
-    const arrayBuffer = await file.arrayBuffer();
+    if (fileInputRef.current) fileInputRef.current.value = '';
 
-    // Check if it already exists
-    const existing = await db.epubBooks.get(id);
-    if (!existing) {
+    setImportError(null);
+    setImporting(true);
+
+    try {
+      const id = `${file.name}-${file.size}`;
+
+      // Check if already imported
+      const existing = await db.epubBooks.get(id);
+      if (existing) { setImporting(false); return; }
+
+      // Parse EPUB → extract chapters
+      const parsed = await parseEpub(file);
+
+      // Save book record
       await db.epubBooks.add({
         id,
-        title: file.name.replace(/\.epub$/i, ''),
-        fileData: arrayBuffer,
-        addedAt: Date.now()
+        title: parsed.title || file.name.replace(/\.epub$/i, ''),
+        author: parsed.author,
+        coverImage: parsed.coverImageBase64,
+        lastChapterIndex: 0,
+        addedAt: Date.now(),
       });
+
+      // Save chapters
+      await db.epubChapters.bulkAdd(
+        parsed.chapters.map(ch => ({
+          id: `${id}-${ch.orderIndex}`,
+          bookId: id,
+          orderIndex: ch.orderIndex,
+          title: ch.title,
+          htmlContent: ch.htmlContent,
+        }))
+      );
+    } catch (err) {
+      console.error('EPUB import failed:', err);
+      setImportError(err instanceof Error ? err.message : 'Gabim gjatë importimit.');
+    } finally {
+      setImporting(false);
     }
-    
-    // reset input
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const deleteEpub = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
+    // Delete book + all its chapters
     await db.epubBooks.delete(id);
+    await db.epubChapters.where('bookId').equals(id).delete();
   };
 
   if (loading && books.length === 0) {
@@ -151,19 +180,33 @@ export function Library({
             alignItems: 'center',
             gap: '0.5rem',
             padding: '0.6rem 1rem',
-            background: 'var(--accent)',
+            background: importing ? 'var(--text-muted)' : 'var(--accent)',
             color: 'white',
             borderRadius: '8px',
-            cursor: 'pointer',
+            cursor: importing ? 'not-allowed' : 'pointer',
             fontFamily: 'var(--ui-font-family)',
             fontSize: '0.85rem',
             fontWeight: 600,
+            pointerEvents: importing ? 'none' : 'auto',
           }}>
-            <Upload size={16} />
-            Hap EPUB
+            {importing ? <Loader size={16} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Upload size={16} />}
+            {importing ? 'Duke importuar...' : 'Hap EPUB'}
           </label>
         </div>
       </header>
+
+      {/* Import error message */}
+      {importError && (
+        <div style={{
+          maxWidth: '640px', margin: '0.75rem auto 0',
+          padding: '0.75rem 1rem', borderRadius: '8px',
+          background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)',
+          color: 'var(--text-primary)', fontSize: '0.85rem',
+          fontFamily: 'var(--ui-font-family)',
+        }}>
+          ⚠️ {importError}
+        </div>
+      )}
 
       <div style={{ maxWidth: '640px', margin: '0 auto', padding: '0 1rem' }}>
         {/* Local EPUB Books Section */}

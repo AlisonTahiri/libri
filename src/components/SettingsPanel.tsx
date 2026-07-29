@@ -25,7 +25,6 @@ interface SettingsPanelProps {
   onToggleFullscreen?: () => void;
   onOpenChapters?: () => void;
   onBackToLibrary?: () => void;
-  isEpub?: boolean;
 }
 
 export function SettingsPanel({
@@ -41,7 +40,6 @@ export function SettingsPanel({
   onToggleFullscreen,
   onOpenChapters,
   onBackToLibrary,
-  isEpub = false,
 }: SettingsPanelProps) {
   return (
     <AnimatePresence>
@@ -130,41 +128,37 @@ export function SettingsPanel({
                 />
               </div>
 
-              {/* Max Width — hidden for EPUB */}
-              {!isEpub && (
-                <div className="panel-section">
-                  <div className="panel-section-title">
-                    Gjerësia e tekstit — {settings.maxWidth}px
-                  </div>
-                  <input
-                    type="range"
-                    className="custom-slider"
-                    min={520}
-                    max={800}
-                    step={20}
-                    value={settings.maxWidth}
-                    onChange={(e) => onSetMaxWidth(Number(e.target.value))}
-                  />
+              {/* Max Width */}
+              <div className="panel-section">
+                <div className="panel-section-title">
+                  Gjerësia e tekstit — {settings.maxWidth}px
                 </div>
-              )}
+                <input
+                  type="range"
+                  className="custom-slider"
+                  min={520}
+                  max={800}
+                  step={20}
+                  value={settings.maxWidth}
+                  onChange={(e) => onSetMaxWidth(Number(e.target.value))}
+                />
+              </div>
 
-              {/* Horizontal Padding — hidden for EPUB */}
-              {!isEpub && (
-                <div className="panel-section">
-                  <div className="panel-section-title">
-                    Kufijtë anësorë — {settings.hPadding.toFixed(1)}rem
-                  </div>
-                  <input
-                    type="range"
-                    className="custom-slider"
-                    min={0.75}
-                    max={3}
-                    step={0.25}
-                    value={settings.hPadding}
-                    onChange={(e) => onSetHPadding(Number(e.target.value))}
-                  />
+              {/* Horizontal Padding */}
+              <div className="panel-section">
+                <div className="panel-section-title">
+                  Kufijtë anësorë — {settings.hPadding.toFixed(1)}rem
                 </div>
-              )}
+                <input
+                  type="range"
+                  className="custom-slider"
+                  min={0.75}
+                  max={3}
+                  step={0.25}
+                  value={settings.hPadding}
+                  onChange={(e) => onSetHPadding(Number(e.target.value))}
+                />
+              </div>
 
               {/* Actions */}
               <div className="panel-section" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

@@ -56,6 +56,7 @@ export function Reader({
   const fabTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const contentRef = useRef<HTMLDivElement>(null);
   const pendingScrollRef = useRef<'top' | 'bottom' | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
   const handleGoToPrev = () => {
     pendingScrollRef.current = 'bottom';
@@ -65,6 +66,28 @@ export function Reader({
   const handleGoToNext = () => {
     pendingScrollRef.current = 'top';
     onGoToNextChapter();
+  };
+
+  // Swipe left/right to navigate chapters (mobile)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+    const dx = touch.clientX - touchStartRef.current.x;
+    const dy = touch.clientY - touchStartRef.current.y;
+    const dt = Date.now() - touchStartRef.current.time;
+    touchStartRef.current = null;
+    // Horizontal swipe: fast, mostly horizontal, > 60px
+    if (dt < 400 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.8) {
+      if (dx < 0 && hasNext) handleGoToNext();
+      else if (dx > 0 && hasPrev) handleGoToPrev();
+    }
   };
 
   const handleGoToChapter = (id: string) => {
@@ -192,6 +215,8 @@ export function Reader({
         background: 'var(--reader-bg)',
         paddingBottom: '4rem',
       }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* Reading Progress Bar */}
       <div className="progress-bar" style={{ width: `${scrollProgress}%` }} />
