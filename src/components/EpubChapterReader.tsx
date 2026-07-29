@@ -35,13 +35,16 @@ export function EpubChapterReader({
   const [chaptersOpen, setChaptersOpen] = useState(false);
   const [uiVisible, setUiVisible] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [initialScrollRestored, setInitialScrollRestored] = useState(false);
 
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const contentRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const uiHideTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const lastScrollY = useRef(0);
+  
+  const isFirstRender = useRef(true);
+  const initialChapterIndex = useRef(book.lastChapterIndex);
+  const initialScrollPos = useRef(book.lastScrollPosition);
 
   const chapter = chapters[currentIndex];
   const hasPrev = currentIndex > 0;
@@ -54,23 +57,34 @@ export function EpubChapterReader({
 
   // Scroll to saved position or top when chapter changes
   useEffect(() => {
-    setTimeout(() => {
-      if (!initialScrollRestored && currentIndex === book.lastChapterIndex && book.lastScrollPosition) {
-        window.scrollTo({ top: book.lastScrollPosition, behavior: 'instant' });
-        setInitialScrollRestored(true);
+    const timer = setTimeout(() => {
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+        if (currentIndex === initialChapterIndex.current && initialScrollPos.current) {
+          window.scrollTo({ top: initialScrollPos.current, behavior: 'instant' });
+        }
       } else {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
-    }, 50); // slight delay to let content render
-  }, [currentIndex, book.lastChapterIndex, book.lastScrollPosition, initialScrollRestored]);
+    }, 100); // 100ms delay to ensure DOM is ready
+    return () => clearTimeout(timer);
+  }, [currentIndex]);
 
-  // Persist scroll position periodically
+  // Persist scroll position periodically and on unmount/unload
   useEffect(() => {
-    const interval = setInterval(() => {
+    const savePosition = () => {
       db.epubBooks.update(book.id, { lastScrollPosition: window.scrollY }).catch(console.error);
-    }, 30000); // 30 seconds
+    };
 
-    return () => clearInterval(interval);
+    const interval = setInterval(savePosition, 30000); // 30 seconds
+    
+    const handleBeforeUnload = () => savePosition();
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, [book.id]);
 
   // Track scroll progress + hide/show UI
@@ -94,12 +108,18 @@ export function EpubChapterReader({
   }, []);
 
   const goNext = useCallback(() => {
-    if (hasNext) setCurrentIndex(i => i + 1);
-  }, [hasNext]);
+    if (hasNext) {
+      db.epubBooks.update(book.id, { lastScrollPosition: 0 }).catch(console.error);
+      setCurrentIndex(i => i + 1);
+    }
+  }, [hasNext, book.id]);
 
   const goPrev = useCallback(() => {
-    if (hasPrev) setCurrentIndex(i => i - 1);
-  }, [hasPrev]);
+    if (hasPrev) {
+      db.epubBooks.update(book.id, { lastScrollPosition: 0 }).catch(console.error);
+      setCurrentIndex(i => i - 1);
+    }
+  }, [hasPrev, book.id]);
 
   // Swipe detection (on the content area, not the scroll container)
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -198,7 +218,11 @@ export function EpubChapterReader({
           width: '100%', boxSizing: 'border-box'
         }}>
           <button
-            onClick={(e) => { e.stopPropagation(); onBack(); }}
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              db.epubBooks.update(book.id, { lastScrollPosition: window.scrollY }).catch(console.error);
+              onBack(); 
+            }}
             style={{
               background: 'transparent', border: 'none',
               color: mutedColor, cursor: 'pointer',

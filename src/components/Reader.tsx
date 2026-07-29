@@ -114,15 +114,23 @@ export function Reader({
     }, 50);
   }, [chapterContent?.chapter.id, _book.id]);
 
-  // Save progress periodically
+  // Save progress periodically and on unmount/unload
   useEffect(() => {
     if (!chapterContent || !_book) return;
     
-    const interval = setInterval(() => {
+    const savePosition = () => {
       saveReadingProgress(_book.id, chapterContent.chapter.id, 0, window.scrollY);
-    }, 30000); // 30 seconds
+    };
 
-    return () => clearInterval(interval);
+    const interval = setInterval(savePosition, 30000); // 30 seconds
+    
+    const handleBeforeUnload = () => savePosition();
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, [_book, chapterContent]);
 
   // Handle sentence tap
@@ -249,7 +257,12 @@ export function Reader({
           width: '100%', boxSizing: 'border-box',
         }}>
           <button
-            onClick={onBackToLibrary}
+            onClick={() => {
+              if (_book && chapterContent) {
+                saveReadingProgress(_book.id, chapterContent.chapter.id, 0, window.scrollY);
+              }
+              onBackToLibrary();
+            }}
             style={{
               background: 'transparent', border: 'none',
               color: 'var(--text-muted)', cursor: 'pointer',
