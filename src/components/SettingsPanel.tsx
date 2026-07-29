@@ -8,7 +8,6 @@ import {
   Maximize,
   Minimize,
   ArrowLeft,
-  List,
 } from 'lucide-react';
 import type { Theme, ReaderSettings } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
@@ -24,7 +23,6 @@ interface SettingsPanelProps {
   onSetHPadding: (hp: number) => void;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
-  onOpenChapters?: () => void;
   onBackToLibrary?: () => void;
 }
 
@@ -39,7 +37,6 @@ export function SettingsPanel({
   onSetHPadding,
   isFullscreen,
   onToggleFullscreen,
-  onOpenChapters,
   onBackToLibrary,
 }: SettingsPanelProps) {
   const { t } = useLanguage();
@@ -185,29 +182,6 @@ export function SettingsPanel({
                   >
                     {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
                     {isFullscreen ? 'Dil nga ekrani i plotë' : 'Ekran i plotë'}
-                  </button>
-                )}
-
-                {onOpenChapters && (
-                  <button
-                    onClick={() => { onOpenChapters(); onClose(); }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      padding: '0.7rem 1rem',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      background: 'transparent',
-                      color: 'var(--text-primary)',
-                      fontFamily: 'var(--ui-font-family)',
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
-                      transition: 'background 0.15s ease',
-                    }}
-                  >
-                    <List size={16} />
-                    {t('chapters')}
                   </button>
                 )}
 

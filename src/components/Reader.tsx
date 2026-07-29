@@ -277,11 +277,19 @@ export function Reader({
             {t('back')}
           </button>
 
-          <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
-            maxWidth: '70%', overflow: 'hidden', textAlign: 'right',
-            fontFamily: 'var(--ui-font-family)',
-          }}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setChaptersOpen(true);
+            }}
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+              maxWidth: '70%', overflow: 'hidden', textAlign: 'right',
+              fontFamily: 'var(--ui-font-family)',
+              background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
+            }}
+            aria-label="Ndërro kapitullin"
+          >
             <div style={{
               fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)',
               whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
@@ -293,12 +301,13 @@ export function Reader({
               <div style={{
                 fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-muted)', fontStyle: 'italic',
                 whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
-                width: '100%', marginTop: '2px',
+                width: '100%', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end'
               }}>
                 {t('chapter')} {currentChapterNum}: {chapterContent.chapter.title}
+                <ChevronLeft size={12} style={{ transform: 'rotate(-90deg)' }} />
               </div>
             )}
-          </div>
+          </button>
         </div>
       </header>
 
@@ -449,7 +458,6 @@ export function Reader({
         onSetHPadding={onSetHPadding}
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
-        onOpenChapters={() => setChaptersOpen(true)}
         onBackToLibrary={onBackToLibrary}
       />
 
