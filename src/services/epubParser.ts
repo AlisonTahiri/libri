@@ -44,11 +44,14 @@ function resolvePath(base: string, relative: string): string {
   return baseParts.join('/');
 }
 
-/** Strip images and inline styles from an HTML string, return clean text HTML */
-function cleanHtml(rawHtml: string): string {
+/** Strip images and inline styles from an HTML string, return clean text HTML and extracted heading */
+function cleanHtml(rawHtml: string): { html: string; heading: string | null } {
   const parser = new DOMParser();
   const doc = parser.parseFromString(rawHtml, 'text/html');
 
+  // Try to find the first semantic heading
+  let heading = doc.querySelector('h1, h2, h3')?.textContent?.trim() || null;
+  
   // Remove images, audio, video, script, style elements
   doc.querySelectorAll('img, image, audio, video, script, style, svg').forEach(el => el.remove());
 
@@ -59,7 +62,7 @@ function cleanHtml(rawHtml: string): string {
 
   // Get the body content
   const body = doc.body;
-  if (!body) return '';
+  if (!body) return { html: '', heading: null };
 
   // Sanitize with DOMPurify
   const clean = DOMPurify.sanitize(body.innerHTML, {
@@ -69,7 +72,7 @@ function cleanHtml(rawHtml: string): string {
     ALLOWED_ATTR: ['href'],
   });
 
-  return clean;
+  return { html: clean, heading };
 }
 
 // ─────────────────────────────────────────────
@@ -146,7 +149,9 @@ export async function parseEpub(file: File): Promise<ParsedEpub> {
         const contentSrc = np.querySelector('content')?.getAttribute('src');
         if (contentSrc) {
           const resolved = resolvePath(ncxEntry.href, contentSrc.split('#')[0]);
-          tocTitles.set(resolved, label);
+          if (!tocTitles.has(resolved)) {
+            tocTitles.set(resolved, label);
+          }
         }
       });
     }
@@ -165,7 +170,9 @@ export async function parseEpub(file: File): Promise<ParsedEpub> {
         const label = a.textContent?.trim() ?? '';
         if (href) {
           const resolved = resolvePath(navEntry.href, href.split('#')[0]);
-          tocTitles.set(resolved, label);
+          if (!tocTitles.has(resolved)) {
+            tocTitles.set(resolved, label);
+          }
         }
       });
     }
@@ -183,19 +190,23 @@ export async function parseEpub(file: File): Promise<ParsedEpub> {
     const rawHtml = await zip.file(entry.href)?.async('text');
     if (!rawHtml) continue;
 
-    const htmlContent = cleanHtml(rawHtml);
+    let { html, heading } = cleanHtml(rawHtml);
+    html = html.replace(/<p>\s*<\/p>/g, '');
 
     // Skip chapters with essentially no text content
-    const textLength = htmlContent.replace(/<[^>]+>/g, '').trim().length;
+    const textLength = html.replace(/<[^>]+>/g, '').trim().length;
     if (textLength < 20) continue;
 
-    const chapterTitle = tocTitles.get(entry.href)
-      ?? `Kapitulli ${chapters.length + 1}`;
+    // Prefer the HTML heading, fallback to TOC, then fallback to Kapitulli X
+    let chapterTitle = heading || tocTitles.get(entry.href) || `Kapitulli ${chapters.length + 1}`;
+
+    // Clean up excessive whitespace in title
+    chapterTitle = chapterTitle.replace(/\s+/g, ' ').trim();
 
     chapters.push({
       orderIndex: chapters.length,
       title: chapterTitle,
-      htmlContent,
+      htmlContent: html,
     });
   }
 

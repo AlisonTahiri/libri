@@ -229,8 +229,8 @@ export function EpubChapterReader({
         onTouchEnd={handleTouchEnd}
         onClick={handleContentClick}
       >
-        {/* Chapter title */}
-        {chapter && (
+        {/* Chapter title (Hidden for EPUBs because the HTML content usually contains its own title) */}
+        {/* {chapter && (
           <div style={{
             maxWidth: `${settings.maxWidth}px`, margin: '0 auto',
             padding: `2rem ${settings.hPadding}rem 0.5rem`,
@@ -252,7 +252,7 @@ export function EpubChapterReader({
               {chapter.title}
             </h2>
           </div>
-        )}
+        )} */}
 
         {/* Chapter body */}
         {chapter && (
