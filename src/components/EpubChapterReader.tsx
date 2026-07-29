@@ -159,21 +159,15 @@ export function EpubChapterReader({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [goNext, goPrev]);
 
-  // Tap zones: left 25% = prev, right 25% = next, center 50% = toggle UI
-  const handleContentClick = useCallback((e: React.MouseEvent) => {
-    const x = e.clientX;
-    const w = window.innerWidth;
+  // Tap zone: Any click toggles UI (except when interacting with selection etc.)
+  const handleContentClick = useCallback(() => {
+    // Only toggle UI if the click wasn't part of a selection
+    if (window.getSelection()?.toString().length) return;
     
-    if (x <= w * 0.25) {
-      goPrev();
-    } else if (x >= w * 0.75) {
-      goNext();
-    } else {
-      setUiVisible(v => !v);
-      // Clear any pending hide timer
-      if (uiHideTimerRef.current) clearTimeout(uiHideTimerRef.current);
-    }
-  }, [goNext, goPrev]);
+    setUiVisible(v => !v);
+    // Clear any pending hide timer
+    if (uiHideTimerRef.current) clearTimeout(uiHideTimerRef.current);
+  }, []);
 
   // Build chapter nav items in the format ChapterNav expects
   const navChapters: Chapter[] = chapters.map((ch, i) => ({
