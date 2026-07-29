@@ -87,6 +87,11 @@ export function Library({
 
   const deleteEpub = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
+    
+    if (!window.confirm('A jeni të sigurt që doni ta fshini këtë libër? Kjo do të fshijë përgjithmonë edhe progresin tuaj të leximit.')) {
+      return;
+    }
+
     // Delete book + all its chapters
     await db.epubBooks.delete(id);
     await db.epubChapters.where('bookId').equals(id).delete();
