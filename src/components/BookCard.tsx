@@ -1,5 +1,5 @@
 import type { Book } from '../types';
-import { BookOpen, Globe, Sparkles } from 'lucide-react';
+import { BookOpen, Globe, Sparkles, Hash } from 'lucide-react';
 
 interface BookCardProps {
   book: Book;
@@ -32,6 +32,12 @@ export function BookCard({ book, onClick }: BookCardProps) {
           <span className="book-card-badge originals-badge">
             <Sparkles size={10} />
             Originals
+          </span>
+        )}
+        {book.level && (
+          <span className="book-card-badge level-badge">
+            <Hash size={10} />
+            {book.level}
           </span>
         )}
         <span className="book-card-badge">

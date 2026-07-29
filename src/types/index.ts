@@ -9,6 +9,7 @@ export interface Book {
   source_language: string;
   target_language: string;
   cover_url: string | null;
+  level?: string | null;
   total_chapters: number;
   created_at: string;
   updated_at: string;
