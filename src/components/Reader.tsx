@@ -221,32 +221,50 @@ export function Reader({
       {/* Reading Progress Bar */}
       <div className="progress-bar" style={{ width: `${scrollProgress}%` }} />
 
-      {/* Header */}
       <header className={`reader-header safe-top ${headerHidden ? 'hidden' : ''}`}>
-        <button
-          onClick={onBackToLibrary}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--accent)',
-            cursor: 'pointer',
-            padding: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
+        <div style={{
+          maxWidth: '780px', margin: '0 auto',
+          padding: '10px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          width: '100%', boxSizing: 'border-box',
+        }}>
+          <button
+            onClick={onBackToLibrary}
+            style={{
+              background: 'transparent', border: 'none',
+              color: 'var(--text-muted)', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '4px',
+              fontFamily: 'var(--ui-font-family)', fontSize: '0.85rem',
+              padding: '4px 8px', marginLeft: '-8px', borderRadius: '6px',
+            }}
+          >
+            <ChevronLeft size={18} />
+            Mbrapsht
+          </button>
+
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+            maxWidth: '70%', overflow: 'hidden', textAlign: 'right',
             fontFamily: 'var(--ui-font-family)',
-            fontSize: '0.85rem',
-          }}
-        >
-          <ChevronLeft size={18} />
-          Libri
-        </button>
-
-        <span className="reader-header-title">
-          {chapterContent?.chapter.title || `Kapitulli ${currentChapterNum}`}
-        </span>
-
-        <div style={{ width: 60 }} /> {/* Spacer for centering */}
+          }}>
+            <div style={{
+              fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)',
+              whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
+              width: '100%',
+            }}>
+              {_book.title}
+            </div>
+            {chapterContent && (
+              <div style={{
+                fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-muted)', fontStyle: 'italic',
+                whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
+                width: '100%', marginTop: '2px',
+              }}>
+                Kapitulli {currentChapterNum}: {chapterContent.chapter.title}
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
       {/* Chapter Title */}

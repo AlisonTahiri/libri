@@ -177,16 +177,27 @@ export function EpubChapterReader({
           </button>
 
           <div style={{
-            fontSize: '0.82rem', fontWeight: 500, color: mutedColor,
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+            maxWidth: '70%', overflow: 'hidden', textAlign: 'right',
             fontFamily: 'var(--ui-font-family)',
-            maxWidth: '55%', overflow: 'hidden',
-            whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-            textAlign: 'center',
           }}>
-            {chapter?.title ?? book.title}
+            <div style={{
+              fontSize: '0.85rem', fontWeight: 600, color: textColor,
+              whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
+              width: '100%',
+            }}>
+              {book.title}
+            </div>
+            {chapter && (
+              <div style={{
+                fontSize: '0.75rem', fontWeight: 400, color: mutedColor, fontStyle: 'italic',
+                whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
+                width: '100%', marginTop: '2px',
+              }}>
+                Kapitulli {currentIndex + 1}: {chapter.title}
+              </div>
+            )}
           </div>
-
-          <div style={{ width: '70px' }} />
         </div>
       </header>
 
