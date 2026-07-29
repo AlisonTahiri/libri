@@ -11,6 +11,7 @@ import {
   List,
 } from 'lucide-react';
 import type { Theme, ReaderSettings } from '../types';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface SettingsPanelProps {
   open: boolean;
@@ -41,6 +42,8 @@ export function SettingsPanel({
   onOpenChapters,
   onBackToLibrary,
 }: SettingsPanelProps) {
+  const { t } = useLanguage();
+
   return (
     <AnimatePresence>
       {open && (
@@ -68,7 +71,7 @@ export function SettingsPanel({
             <div className="safe-bottom">
               {/* Theme */}
               <div className="panel-section">
-                <div className="panel-section-title">Tema</div>
+                <div className="panel-section-title">{t('theme')}</div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button
                     className={`theme-btn theme-btn-dark ${settings.theme === 'dark' ? 'active' : ''}`}
@@ -89,7 +92,7 @@ export function SettingsPanel({
                     onClick={() => onSetTheme('sepia')}
                   >
                     <Coffee size={14} style={{ marginRight: 4, verticalAlign: -2 }} />
-                    Sepia
+                    {t('sepia')}
                   </button>
                 </div>
               </div>
@@ -98,7 +101,7 @@ export function SettingsPanel({
               <div className="panel-section">
                 <div className="panel-section-title">
                   <Type size={12} style={{ marginRight: 4, verticalAlign: -1 }} />
-                  Madhësia e fontit — {settings.fontSize}px
+                  {t('textSize')} — {settings.fontSize}px
                 </div>
                 <input
                   type="range"
@@ -115,7 +118,7 @@ export function SettingsPanel({
               <div className="panel-section">
                 <div className="panel-section-title">
                   <AlignVerticalSpaceAround size={12} style={{ marginRight: 4, verticalAlign: -1 }} />
-                  Hapësira vertikale — {settings.lineHeight.toFixed(1)}
+                  {t('lineHeight')} — {settings.lineHeight.toFixed(1)}
                 </div>
                 <input
                   type="range"
@@ -131,7 +134,7 @@ export function SettingsPanel({
               {/* Max Width */}
               <div className="panel-section">
                 <div className="panel-section-title">
-                  Gjerësia e tekstit — {settings.maxWidth}px
+                  {t('pageWidth')} — {settings.maxWidth}px
                 </div>
                 <input
                   type="range"
@@ -147,7 +150,7 @@ export function SettingsPanel({
               {/* Horizontal Padding */}
               <div className="panel-section">
                 <div className="panel-section-title">
-                  Kufijtë anësorë — {settings.hPadding.toFixed(1)}rem
+                  {t('sideMargins')} — {settings.hPadding.toFixed(1)}rem
                 </div>
                 <input
                   type="range"
@@ -204,7 +207,7 @@ export function SettingsPanel({
                     }}
                   >
                     <List size={16} />
-                    Kapitujt
+                    {t('chapters')}
                   </button>
                 )}
 
@@ -227,7 +230,7 @@ export function SettingsPanel({
                     }}
                   >
                     <ArrowLeft size={16} />
-                    Kthehu te Biblioteka
+                    {t('back')}
                   </button>
                 )}
               </div>

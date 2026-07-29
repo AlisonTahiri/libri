@@ -6,6 +6,7 @@ import { SettingsPanel } from './SettingsPanel';
 import { ChapterNav } from './ChapterNav';
 import { useTooltip } from '../hooks/useTooltip';
 import { useFullscreen } from '../hooks/useFullscreen';
+import { useLanguage } from '../hooks/useLanguage';
 import type { Book, Chapter, ChapterContent, ReaderSettings, Theme } from '../types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { saveReadingProgress, getReadingProgress } from '../services/bookService';
@@ -45,6 +46,7 @@ export function Reader({
   onBackToLibrary,
   onUpdateProgress,
 }: ReaderProps) {
+  const { t } = useLanguage();
   const { tooltip, tooltipRef, showTooltip, hideTooltip } = useTooltip();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -272,7 +274,7 @@ export function Reader({
             }}
           >
             <ChevronLeft size={18} />
-            Mbrapsht
+            {t('back')}
           </button>
 
           <div style={{
@@ -293,7 +295,7 @@ export function Reader({
                 whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
                 width: '100%', marginTop: '2px',
               }}>
-                Kapitulli {currentChapterNum}: {chapterContent.chapter.title}
+                {t('chapter')} {currentChapterNum}: {chapterContent.chapter.title}
               </div>
             )}
           </div>

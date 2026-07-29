@@ -4,8 +4,12 @@ import './index.css'
 import './components.css'
 import App from './App'
 
+import { LanguageProvider } from './hooks/useLanguage'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
   </StrictMode>,
 )

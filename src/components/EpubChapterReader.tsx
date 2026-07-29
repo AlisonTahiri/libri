@@ -4,8 +4,8 @@ import { SettingsPanel } from './SettingsPanel';
 import { ChapterNav } from './ChapterNav';
 import { useFullscreen } from '../hooks/useFullscreen';
 import type { ReaderSettings, Theme, Chapter } from '../types';
-import type { EpubBook, EpubChapter } from '../lib/db';
-import { db } from '../lib/db';
+import { db, type EpubBook, type EpubChapter } from '../lib/db';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface EpubChapterReaderProps {
   book: EpubBook;
@@ -35,6 +35,7 @@ export function EpubChapterReader({
   const [chaptersOpen, setChaptersOpen] = useState(false);
   const [uiVisible, setUiVisible] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const { t } = useLanguage();
 
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -232,7 +233,7 @@ export function EpubChapterReader({
             }}
           >
             <ChevronLeft size={18} />
-            Mbrapsht
+            {t('back')}
           </button>
 
           <div style={{
@@ -253,7 +254,7 @@ export function EpubChapterReader({
                 whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
                 width: '100%', marginTop: '2px',
               }}>
-                Kapitulli {currentIndex + 1}: {chapter.title}
+                {t('chapter')} {currentIndex + 1}: {chapter.title}
               </div>
             )}
           </div>

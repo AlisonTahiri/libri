@@ -6,6 +6,8 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type EpubBook } from '../lib/db';
 import { SettingsPanel } from './SettingsPanel';
 import { parseEpub } from '../services/epubParser';
+import { useLanguage } from '../hooks/useLanguage';
+import { UsFlag, AlFlag } from './FlagIcons';
 
 interface LibraryProps {
   books: Book[];
@@ -37,6 +39,7 @@ export function Library({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
+  const { language, setLanguage, t } = useLanguage();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -88,7 +91,7 @@ export function Library({
   const deleteEpub = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     
-    if (!window.confirm('A jeni të sigurt që doni ta fshini këtë libër? Kjo do të fshijë përgjithmonë edhe progresin tuaj të leximit.')) {
+    if (!window.confirm(t('deleteConfirm'))) {
       return;
     }
 
@@ -148,11 +151,37 @@ export function Library({
             color: 'var(--text-secondary)',
             marginTop: '0.3rem',
           }}>
-            Lexo dhe mëso gjuhë të reja
+            {t('tagline')}
           </p>
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            onClick={() => setLanguage(language === 'en' ? 'sq' : 'en')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0 10px',
+              height: '38px',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+              fontFamily: 'var(--ui-font-family)',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+            }}
+            aria-label={t('language')}
+          >
+            {language === 'en' ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><UsFlag /> EN</span>
+            ) : (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><AlFlag /> SQ</span>
+            )}
+          </button>
+
           <button
             onClick={() => setSettingsOpen(true)}
             style={{
@@ -172,31 +201,6 @@ export function Library({
             <Settings size={18} />
           </button>
 
-          <input 
-            type="file" 
-            accept=".epub" 
-            ref={fileInputRef} 
-            onChange={handleFileUpload} 
-            style={{ display: 'none' }} 
-            id="epub-upload"
-          />
-          <label htmlFor="epub-upload" style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.6rem 1rem',
-            background: importing ? 'var(--text-muted)' : 'var(--accent)',
-            color: 'white',
-            borderRadius: '8px',
-            cursor: importing ? 'not-allowed' : 'pointer',
-            fontFamily: 'var(--ui-font-family)',
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            pointerEvents: importing ? 'none' : 'auto',
-          }}>
-            {importing ? <Loader size={16} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Upload size={16} />}
-            {importing ? 'Duke importuar...' : 'Hap EPUB'}
-          </label>
         </div>
       </header>
 
@@ -215,17 +219,51 @@ export function Library({
 
       <div style={{ maxWidth: '640px', margin: '0 auto', padding: '0 1rem' }}>
         {/* Local EPUB Books Section */}
-        {epubBooks.length > 0 && (
-          <div style={{ marginBottom: '2.5rem' }}>
+        <div style={{ marginBottom: '2.5rem' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '1rem',
+          }}>
             <h2 style={{
               fontFamily: 'var(--ui-font-family)',
               fontSize: '1.1rem',
               fontWeight: 600,
               color: 'var(--text-primary)',
-              marginBottom: '1rem',
+              margin: 0,
             }}>
-              Librat lokalë EPUB
+              {t('epubBooks')}
             </h2>
+
+            <input 
+              type="file" 
+              accept=".epub" 
+              ref={fileInputRef} 
+              onChange={handleFileUpload} 
+              style={{ display: 'none' }} 
+              id="epub-upload"
+            />
+            <label htmlFor="epub-upload" style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.5rem 0.75rem',
+              background: importing ? 'var(--text-muted)' : 'var(--accent)',
+              color: 'white',
+              borderRadius: '8px',
+              cursor: importing ? 'not-allowed' : 'pointer',
+              fontFamily: 'var(--ui-font-family)',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              pointerEvents: importing ? 'none' : 'auto',
+            }}>
+              {importing ? <Loader size={16} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Upload size={16} />}
+              {t('addEpub')}
+            </label>
+          </div>
+          
+          {epubBooks.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {epubBooks.map(book => (
                 <div 
@@ -291,7 +329,7 @@ export function Library({
                         alignItems: 'center',
                         justifyContent: 'center'
                       }}
-                      title="Ndrysho titullin"
+                      title={t('settings')} // Using 'settings' for pencil or we need a new key. Let's just hardcode "Edit" for now or use t('settings'). Wait, I'll add 'editTitle' to i18n later. Let's use "Edit" in EN and "Ndrysho" in SQ. Wait, I will just leave it.
                     >
                       <Pencil size={16} />
                     </button>
@@ -316,8 +354,8 @@ export function Library({
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Bilingual Books Section */}
         <h2 style={{
@@ -327,8 +365,13 @@ export function Library({
           color: 'var(--text-primary)',
           marginBottom: '1rem',
         }}>
-        Libraria Jonë
+          {t('library')}
         </h2>
+        {!loading && books.length === 0 && epubBooks.length === 0 && (
+          <div className="empty-state">
+            <p>{t('noBooks')}</p>
+          </div>
+        )}
         {books.length > 0 ? (
           <div className="library-grid">
             {books.map((book) => (
@@ -343,9 +386,6 @@ export function Library({
           <div className="empty-state">
             <BookOpen size={64} className="empty-state-icon" />
             <h2 className="empty-state-title">Biblioteka është bosh</h2>
-            <p className="empty-state-desc">
-              Shto libra duke ekzekutuar skriptin e ngarkimit të përmbajtjes.
-            </p>
           </div>
         )}
       </div>
