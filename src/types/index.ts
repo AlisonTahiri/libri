@@ -52,6 +52,7 @@ export interface ReadingProgress {
   book_id: string;
   chapter_id: string | null;
   last_paragraph_index: number;
+  scroll_position?: number;
   updated_at: string;
 }
 

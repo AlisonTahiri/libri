@@ -122,7 +122,8 @@ export function getReadingProgress(bookId: string): ReadingProgress | null {
 export function saveReadingProgress(
   bookId: string,
   chapterId: string,
-  lastParagraphIndex: number
+  lastParagraphIndex: number,
+  scrollPosition?: number
 ): void {
   const key = `libri-progress-${bookId}`;
   const progress: ReadingProgress = {
@@ -130,6 +131,7 @@ export function saveReadingProgress(
     book_id: bookId,
     chapter_id: chapterId,
     last_paragraph_index: lastParagraphIndex,
+    scroll_position: scrollPosition,
     updated_at: new Date().toISOString(),
   };
   localStorage.setItem(key, JSON.stringify(progress));

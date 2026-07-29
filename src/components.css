@@ -383,10 +383,11 @@
   position: fixed;
   top: 0;
   left: 0;
-  height: 2px;
+  height: 4px;
   background: var(--accent);
   z-index: 100;
   transition: width 0.15s ease-out;
+  box-shadow: 0 1px 4px var(--accent);
 }
 
 /* ═══════════════════════════════════════════════════════

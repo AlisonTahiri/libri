@@ -35,6 +35,7 @@ export function EpubChapterReader({
   const [chaptersOpen, setChaptersOpen] = useState(false);
   const [uiVisible, setUiVisible] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [initialScrollRestored, setInitialScrollRestored] = useState(false);
 
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -51,11 +52,26 @@ export function EpubChapterReader({
     db.epubBooks.update(book.id, { lastChapterIndex: currentIndex }).catch(console.error);
   }, [book.id, currentIndex]);
 
-  // Scroll to top when chapter changes
+  // Scroll to saved position or top when chapter changes
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    setScrollProgress(0);
-  }, [currentIndex]);
+    setTimeout(() => {
+      if (!initialScrollRestored && currentIndex === book.lastChapterIndex && book.lastScrollPosition) {
+        window.scrollTo({ top: book.lastScrollPosition, behavior: 'instant' });
+        setInitialScrollRestored(true);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    }, 50); // slight delay to let content render
+  }, [currentIndex, book.lastChapterIndex, book.lastScrollPosition, initialScrollRestored]);
+
+  // Persist scroll position periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      db.epubBooks.update(book.id, { lastScrollPosition: window.scrollY }).catch(console.error);
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [book.id]);
 
   // Track scroll progress + hide/show UI
   useEffect(() => {
@@ -141,11 +157,7 @@ export function EpubChapterReader({
     <div style={{ minHeight: '100dvh', background: bg }}>
 
       {/* Progress bar */}
-      <div style={{
-        position: 'fixed', top: 0, left: 0, zIndex: 20,
-        height: '3px', width: `${scrollProgress}%`,
-        background: 'var(--accent)', transition: 'width 0.2s linear',
-      }} />
+      <div className="progress-bar" style={{ width: `${scrollProgress}%` }} />
 
       {/* Header */}
       <header

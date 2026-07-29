@@ -6,6 +6,7 @@ export interface EpubBook {
   author?: string;
   coverImage?: string;  // base64 data URL
   lastChapterIndex: number;   // last opened chapter index
+  lastScrollPosition?: number; // last scroll offset
   addedAt: number;
 }
 

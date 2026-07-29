@@ -8,6 +8,7 @@ import { useTooltip } from '../hooks/useTooltip';
 import { useFullscreen } from '../hooks/useFullscreen';
 import type { Book, Chapter, ChapterContent, ReaderSettings, Theme } from '../types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { saveReadingProgress, getReadingProgress } from '../services/bookService';
 
 interface ReaderProps {
   book: Book;
@@ -100,14 +101,29 @@ export function Reader({
     
     // Use setTimeout to ensure DOM has fully updated and layout is calculated
     setTimeout(() => {
+      const progress = getReadingProgress(_book.id);
+      
       if (pendingScrollRef.current === 'bottom') {
         window.scrollTo(0, document.documentElement.scrollHeight);
+      } else if (progress?.chapter_id === chapterContent.chapter.id && progress?.scroll_position) {
+        window.scrollTo(0, progress.scroll_position);
       } else {
         window.scrollTo(0, 0);
       }
       pendingScrollRef.current = null;
     }, 50);
-  }, [chapterContent?.chapter.id]);
+  }, [chapterContent?.chapter.id, _book.id]);
+
+  // Save progress periodically
+  useEffect(() => {
+    if (!chapterContent || !_book) return;
+    
+    const interval = setInterval(() => {
+      saveReadingProgress(_book.id, chapterContent.chapter.id, 0, window.scrollY);
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [_book, chapterContent]);
 
   // Handle sentence tap
   const handleSentenceTap = useCallback(
