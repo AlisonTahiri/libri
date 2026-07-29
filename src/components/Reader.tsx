@@ -235,12 +235,16 @@ export function Reader({
       onTouchEnd={handleTouchEnd}
     >
       {/* Reading Progress Bar */}
-      <div className="progress-bar" style={{ width: `${scrollProgress}%` }} />
+      <div className="progress-bar-container" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: `${settings.maxWidth}px`, position: 'relative' }}>
+          <div className="progress-bar" style={{ width: `${scrollProgress}%`, position: 'absolute' }} />
+        </div>
+      </div>
 
       <header className={`reader-header safe-top ${headerHidden ? 'hidden' : ''}`}>
         <div style={{
-          maxWidth: '780px', margin: '0 auto',
-          padding: '10px 16px',
+          maxWidth: `${settings.maxWidth}px`, margin: '0 auto',
+          padding: `10px ${settings.hPadding}rem`,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           width: '100%', boxSizing: 'border-box',
         }}>
@@ -401,17 +405,22 @@ export function Reader({
         above={tooltip.above}
       />
 
-      {/* FAB */}
-      <button
-        className={`fab ${fabVisible ? '' : 'hidden'}`}
-        onClick={() => {
-          setSettingsOpen(true);
-          setFabVisible(true);
-        }}
-        aria-label="Cilësimet"
-      >
-        <Settings size={20} />
-      </button>
+      {/* FAB Settings */}
+      <div style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 15,
+        pointerEvents: 'none', display: 'flex', justifyContent: 'center'
+      }}>
+        <div style={{ width: '100%', maxWidth: `${settings.maxWidth}px`, position: 'relative' }}>
+          <button
+            className={`fab ${fabVisible ? '' : 'hidden'}`}
+            onClick={() => setSettingsOpen(true)}
+            aria-label="Cilësimet"
+            style={{ position: 'absolute', bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))', right: `${settings.hPadding}rem`, pointerEvents: 'auto' }}
+          >
+            <Settings size={20} />
+          </button>
+        </div>
+      </div>
 
       {/* Settings Panel */}
       <SettingsPanel

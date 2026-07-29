@@ -157,7 +157,11 @@ export function EpubChapterReader({
     <div style={{ minHeight: '100dvh', background: bg }}>
 
       {/* Progress bar */}
-      <div className="progress-bar" style={{ width: `${scrollProgress}%` }} />
+      <div className="progress-bar-container" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: `${settings.maxWidth}px`, position: 'relative' }}>
+          <div className="progress-bar" style={{ width: `${scrollProgress}%`, position: 'absolute' }} />
+        </div>
+      </div>
 
       {/* Header */}
       <header
@@ -170,9 +174,10 @@ export function EpubChapterReader({
         }}
       >
         <div style={{
-          maxWidth: '780px', margin: '0 auto',
-          padding: '10px 16px',
+          maxWidth: `${settings.maxWidth}px`, margin: '0 auto',
+          padding: `10px ${settings.hPadding}rem`,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          width: '100%', boxSizing: 'border-box'
         }}>
           <button
             onClick={(e) => { e.stopPropagation(); onBack(); }}
@@ -315,14 +320,21 @@ export function EpubChapterReader({
       </div>
 
       {/* FAB Settings */}
-      <button
-        className={`fab ${uiVisible ? '' : 'hidden'}`}
-        onClick={(e) => { e.stopPropagation(); setSettingsOpen(true); }}
-        aria-label="Cilësimet"
-        style={{ zIndex: 15 }}
-      >
-        <Settings size={20} />
-      </button>
+      <div style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 15,
+        pointerEvents: 'none', display: 'flex', justifyContent: 'center'
+      }}>
+        <div style={{ width: '100%', maxWidth: `${settings.maxWidth}px`, position: 'relative' }}>
+          <button
+            className={`fab ${uiVisible ? '' : 'hidden'}`}
+            onClick={(e) => { e.stopPropagation(); setSettingsOpen(true); }}
+            aria-label="Cilësimet"
+            style={{ position: 'absolute', bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))', right: `${settings.hPadding}rem`, pointerEvents: 'auto' }}
+          >
+            <Settings size={20} />
+          </button>
+        </div>
+      </div>
 
       {/* Settings Panel */}
       <SettingsPanel
