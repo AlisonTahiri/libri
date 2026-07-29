@@ -25,6 +25,8 @@ export const translations = {
     language: 'Language',
     tagline: 'Read and learn new languages',
     epubBooks: 'EPUB Books',
+    fullscreen: 'Full Screen',
+    exitFullscreen: 'Exit Full Screen',
   },
   sq: {
     library: 'Libraria',
@@ -50,6 +52,8 @@ export const translations = {
     language: 'Gjuha',
     tagline: 'Lexo dhe mëso gjuhë të reja',
     epubBooks: 'Librat EPUB',
+    fullscreen: 'Ekran i plotë',
+    exitFullscreen: 'Dil nga ekrani i plotë',
   }
 };
 

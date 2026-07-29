@@ -3,7 +3,6 @@ import { Settings } from 'lucide-react';
 import { ReaderContent } from './ReaderContent';
 import { TranslationTooltip } from './TranslationTooltip';
 import { SettingsPanel } from './SettingsPanel';
-import { LanguageSwitcher } from './LanguageSwitcher';
 import { ChapterNav } from './ChapterNav';
 import { useTooltip } from '../hooks/useTooltip';
 import { useFullscreen } from '../hooks/useFullscreen';
@@ -277,8 +276,6 @@ export function Reader({
             <ChevronLeft size={18} />
             {t('back')}
           </button>
-          
-          <LanguageSwitcher />
 
           <button
             onClick={(e) => {

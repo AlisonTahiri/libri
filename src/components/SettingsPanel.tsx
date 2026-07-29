@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import type { Theme, ReaderSettings } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface SettingsPanelProps {
   open: boolean;
@@ -66,6 +67,14 @@ export function SettingsPanel({
             <div className="panel-handle" />
 
             <div className="safe-bottom">
+              {/* Language */}
+              <div className="panel-section">
+                <div className="panel-section-title">{t('language')}</div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <LanguageSwitcher />
+                </div>
+              </div>
+
               {/* Theme */}
               <div className="panel-section">
                 <div className="panel-section-title">{t('theme')}</div>
@@ -181,7 +190,7 @@ export function SettingsPanel({
                     }}
                   >
                     {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-                    {isFullscreen ? 'Dil nga ekrani i plotë' : 'Ekran i plotë'}
+                    {isFullscreen ? t('exitFullscreen') : t('fullscreen')}
                   </button>
                 )}
 
