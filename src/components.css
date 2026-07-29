@@ -125,7 +125,7 @@
   z-index: 30;
   background: var(--bg-primary);
   border-bottom: 1px solid var(--border-subtle);
-  padding: 0.6rem var(--reader-h-padding);
+  /* padding: 0.6rem var(--reader-h-padding); */
   display: flex;
   align-items: center;
   justify-content: space-between;
