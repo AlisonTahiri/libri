@@ -1,73 +1,86 @@
-# React + TypeScript + Vite
+# Libri 📖
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Libri is a modern, bilingual reading application designed to help users learn languages through immersive reading. It supports both cloud-based curated books and local EPUB file parsing, offering seamless sentence-by-sentence translations on tap.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Bilingual Reading Experience:** Tap any sentence to instantly see its translation in your preferred language (e.g., Albanian or English).
+- **Dynamic Language Switching:** Seamlessly switch between different translation languages on the fly.
+- **EPUB Support:** Upload and read your own DRM-free `.epub` books directly in the browser with full pagination and chapter navigation support.
+- **Customizable Reader:** Adjust text size, font family, line height, margins, and themes (Light, Dark, Sepia) for a comfortable reading experience.
+- **Progress Tracking:** Automatically saves your reading progress (scroll position and current chapter) locally using IndexedDB.
+- **Offline Capable:** Local EPUB books and reading settings are cached in the browser for offline access.
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend:** React 18, TypeScript, Vite
+- **Styling:** CSS Modules / Vanilla CSS (Modern CSS features)
+- **Database / Backend:** [Supabase](https://supabase.com/) (PostgreSQL)
+- **EPUB Parsing:** [epubjs](https://github.com/futurepress/epub.js/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **Storage:** Dexie.js (IndexedDB wrapper for local storage)
 
-## Expanding the ESLint configuration
+## 🚀 Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js (v18 or higher)
+- npm, yarn, pnpm, or bun
+- A Supabase account and project
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/libri.git
+   cd libri
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or yarn / pnpm / bun install
+   ```
+
+3. **Set up Environment Variables**
+   Create a `.env` file in the root directory and add your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=https://your-project-id.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   ```
+
+### 🗄️ Database Setup (Supabase)
+
+The cloud library relies on a PostgreSQL database. To set up the required schema and initial data:
+
+1. Open your Supabase project's SQL Editor.
+2. Run the schema migration found in `supabase/migrations/001_create_libri_schema.sql`.
+3. Run the schema update found in `supabase/migrations/002_add_english_translations.sql`.
+4. Run the seed files located in the `supabase/` directory to populate the library with initial books.
+
+### 💻 Development Server
+
+Start the Vite development server:
+
+```bash
+npm run dev
+# or bun dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The application will be available at `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📂 Project Structure
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+src/
+├── components/      # React components (Reader, Library, Settings, etc.)
+├── hooks/           # Custom React hooks (useLanguage, useFullscreen, etc.)
+├── lib/             # Utility functions and Supabase client config
+├── services/        # External services (IndexedDB, epubParser)
+├── types/           # TypeScript interfaces and type definitions
+└── App.tsx          # Main application routing and state
 ```
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).
