@@ -7,7 +7,7 @@ import { db, type EpubBook } from '../lib/db';
 import { SettingsPanel } from './SettingsPanel';
 import { parseEpub } from '../services/epubParser';
 import { useLanguage } from '../hooks/useLanguage';
-import { UsFlag, AlFlag } from './FlagIcons';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface LibraryProps {
   books: Book[];
@@ -39,7 +39,7 @@ export function Library({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -156,32 +156,7 @@ export function Library({
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <button
-            onClick={() => setLanguage(language === 'en' ? 'sq' : 'en')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '0 10px',
-              height: '38px',
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
-              color: 'var(--text-primary)',
-              cursor: 'pointer',
-              fontFamily: 'var(--ui-font-family)',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-            }}
-            aria-label={t('language')}
-          >
-            {language === 'en' ? (
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><UsFlag /> EN</span>
-            ) : (
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><AlFlag /> SQ</span>
-            )}
-          </button>
-
+          <LanguageSwitcher />
           <button
             onClick={() => setSettingsOpen(true)}
             style={{

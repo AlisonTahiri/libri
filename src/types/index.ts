@@ -33,7 +33,8 @@ export interface Sentence {
   paragraph_id: string;
   order_index: number;
   original_text: string;
-  translated_text: string;
+  translated_text_sq: string;
+  translated_text_en?: string;
 }
 
 /** Paragraph with its nested sentences, ready for rendering */

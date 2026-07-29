@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SettingsPanel } from './SettingsPanel';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { ChapterNav } from './ChapterNav';
 import { useFullscreen } from '../hooks/useFullscreen';
 import type { ReaderSettings, Theme, Chapter } from '../types';
@@ -229,6 +230,8 @@ export function EpubChapterReader({
             <ChevronLeft size={18} />
             {t('back')}
           </button>
+          
+          <LanguageSwitcher />
 
           <button
             onClick={(e) => {

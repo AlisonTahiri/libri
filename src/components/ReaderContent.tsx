@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { Sentence } from './Sentence';
+import { useLanguage } from '../hooks/useLanguage';
 import type { ParagraphWithSentences } from '../types';
 
 interface ReaderContentProps {
@@ -16,6 +17,8 @@ export function ReaderContent({ paragraphs, activeSentenceId, onSentenceTap }: R
     [onSentenceTap]
   );
 
+  const { language } = useLanguage();
+
   if (paragraphs.length === 0) {
     return (
       <div className="reader-content">
@@ -30,18 +33,24 @@ export function ReaderContent({ paragraphs, activeSentenceId, onSentenceTap }: R
     <div className="reader-content">
       {paragraphs.map((paragraph) => (
         <p key={paragraph.id} className="reader-paragraph">
-          {paragraph.sentences.map((sentence, idx) => (
-            <span key={sentence.id}>
-              {idx > 0 && ' '}
-              <Sentence
-                id={sentence.id}
-                text={sentence.original_text}
-                translation={sentence.translated_text}
-                isActive={activeSentenceId === sentence.id}
-                onTap={handleTap}
-              />
-            </span>
-          ))}
+          {paragraph.sentences.map((sentence, idx) => {
+            const translation = language === 'en' && sentence.translated_text_en 
+              ? sentence.translated_text_en 
+              : sentence.translated_text_sq;
+
+            return (
+              <span key={sentence.id}>
+                {idx > 0 && ' '}
+                <Sentence
+                  id={sentence.id}
+                  text={sentence.original_text}
+                  translation={translation}
+                  isActive={activeSentenceId === sentence.id}
+                  onTap={handleTap}
+                />
+              </span>
+            );
+          })}
         </p>
       ))}
     </div>
