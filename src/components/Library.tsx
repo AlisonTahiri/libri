@@ -7,7 +7,7 @@ import { SettingsPanel } from './SettingsPanel';
 import { parseEpub } from '../services/epubParser';
 import { useLanguage } from '../hooks/useLanguage';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { Settings, Loader2, Upload, Book as BookIcon, Pen, Trash2, BookOpen, Zap } from 'lucide-react';
+import { Settings, Loader2, Upload, Book as BookIcon, Pen, Trash2, BookOpen } from 'lucide-react';
 
 interface LibraryProps {
   books: Book[];
