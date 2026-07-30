@@ -112,7 +112,11 @@ export function getReadingProgress(bookId: string): ReadingProgress | null {
   const stored = localStorage.getItem(key);
   if (!stored) return null;
   try {
-    return JSON.parse(stored);
+    const parsed = JSON.parse(stored);
+    if (typeof parsed === 'object' && parsed !== null) {
+      return parsed as ReadingProgress;
+    }
+    return null;
   } catch {
     return null;
   }

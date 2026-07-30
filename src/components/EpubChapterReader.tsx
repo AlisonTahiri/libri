@@ -6,6 +6,7 @@ import { useFullscreen } from '../hooks/useFullscreen';
 import type { ReaderSettings, Theme, Chapter } from '../types';
 import { db, type EpubBook, type EpubChapter } from '../lib/db';
 import { useLanguage } from '../hooks/useLanguage';
+import DOMPurify from 'dompurify';
 
 interface EpubChapterReaderProps {
   book: EpubBook;
@@ -292,7 +293,7 @@ export function EpubChapterReader({
               lineHeight: settings.lineHeight,
               fontFamily: 'Literata, Georgia, "Times New Roman", serif',
             }}
-            dangerouslySetInnerHTML={{ __html: chapter.htmlContent }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(chapter.htmlContent) }}
           />
         )}
 

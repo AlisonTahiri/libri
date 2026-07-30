@@ -8,7 +8,10 @@ function loadSettings(): ReaderSettings {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return { ...DEFAULT_READER_SETTINGS, ...JSON.parse(stored) };
+      const parsed = JSON.parse(stored);
+      if (typeof parsed === 'object' && parsed !== null) {
+        return { ...DEFAULT_READER_SETTINGS, ...parsed };
+      }
     }
   } catch {
     // ignore
