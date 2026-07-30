@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, ChevronDown, Settings as SettingsIcon } from 'lucide-react';
 import { SettingsPanel } from './SettingsPanel';
 import { ChapterNav } from './ChapterNav';
 import { useFullscreen } from '../hooks/useFullscreen';
@@ -235,7 +236,7 @@ export function EpubChapterReader({
               padding: '4px 8px', marginLeft: '-8px', borderRadius: '6px',
             }}
           >
-            <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+            <ChevronLeft className="w-[18px] h-[18px]" />
             {t('back')}
           </button>
 
@@ -266,7 +267,7 @@ export function EpubChapterReader({
                 width: '100%', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end'
               }}>
                 {t('chapter')} {currentIndex + 1}: {chapter.title}
-                <span className="material-symbols-outlined text-[12px] rotate-[-90deg]">chevron_left</span>
+                <ChevronDown className="w-3 h-3 ml-1" />
               </div>
             )}
           </button>
@@ -337,7 +338,7 @@ export function EpubChapterReader({
               disabled={!hasPrev}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-outline-variant/50 bg-transparent text-on-surface hover:bg-surface-variant/30 transition-colors disabled:opacity-40 disabled:cursor-default font-ui-button text-ui-button"
             >
-              <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+              <ChevronLeft className="w-4 h-4" />
               {t('prev')}
             </button>
 
@@ -354,7 +355,7 @@ export function EpubChapterReader({
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-outline-variant/50 bg-transparent text-on-surface hover:bg-surface-variant/30 transition-colors disabled:opacity-40 disabled:cursor-default font-ui-button text-ui-button"
             >
               {t('next')}
-              <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         )}
@@ -372,7 +373,7 @@ export function EpubChapterReader({
             aria-label="Cilësimet"
             style={{ position: 'absolute', bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))', right: `${settings.hPadding}rem`, pointerEvents: 'auto' }}
           >
-            <span className="material-symbols-outlined text-[24px]">settings</span>
+            <SettingsIcon className="w-6 h-6" />
           </button>
         </div>
       </div>

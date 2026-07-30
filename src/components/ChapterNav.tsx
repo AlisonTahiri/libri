@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { X, Check } from 'lucide-react';
 import type { Chapter } from '../types';
 
 interface ChapterNavProps {
@@ -51,7 +52,7 @@ export function ChapterNav({
                 onClick={onClose}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-colors"
               >
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -76,7 +77,7 @@ export function ChapterNav({
                       {ch.title || `Kapitulli ${ch.chapter_number}`}
                     </span>
                     {isActive && (
-                      <span className="material-symbols-outlined text-[18px]">check</span>
+                      <Check className="w-[18px] h-[18px]" />
                     )}
                   </div>
                 );

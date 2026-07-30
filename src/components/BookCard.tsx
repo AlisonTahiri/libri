@@ -1,4 +1,5 @@
 import type { Book } from '../types';
+import { Book as BookIcon, Sparkles } from 'lucide-react';
 
 interface BookCardProps {
   book: Book;
@@ -32,7 +33,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
         {book.cover_url ? (
           <img src={book.cover_url} alt={book.title} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
-          <span className="material-symbols-outlined text-[48px] text-on-surface-variant opacity-30">book</span>
+          <BookIcon className="w-12 h-12 text-on-surface-variant opacity-30" />
         )}
       </div>
       <div className="flex flex-col p-3 flex-1">
@@ -42,7 +43,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
         
         {isOriginal ? (
           <p className="font-ui-label-sm text-[11px] text-primary flex items-center gap-1 mb-3 truncate">
-            <span className="material-symbols-outlined text-[12px]">auto_awesome</span>
+            <Sparkles className="w-3 h-3" />
             Originals
           </p>
         ) : book.author ? (

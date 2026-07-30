@@ -118,6 +118,10 @@ html.dark {
   --color-surface: #1f2937;
   --color-surface-variant: #374151;
   --color-surface-container-lowest: #111827;
+  --color-surface-container-low: #1f2937;
+  --color-surface-container: #374151;
+  --color-surface-container-high: #4b5563;
+  --color-surface-container-highest: #374151;
   --color-on-background: #f3f4f6;
   --color-on-surface: #f3f4f6;
   --color-on-surface-variant: #9ca3af;
@@ -125,6 +129,8 @@ html.dark {
   --color-on-primary: #1e3a8a;
   --color-outline: #6b7280;
   --color-outline-variant: #4b5563;
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
 }
 
 body {

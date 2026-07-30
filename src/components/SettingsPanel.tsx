@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Theme, ReaderSettings } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { Sun, Moon, Coffee, Type, AlignJustify, MoveHorizontal, Indent, Maximize, Minimize, ArrowLeft } from 'lucide-react';
 
 interface SettingsPanelProps {
   open: boolean;
@@ -78,21 +79,21 @@ export function SettingsPanel({
                       onClick={() => onSetTheme('light')}
                       className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-ui-button text-ui-button transition-colors ${settings.theme === 'light' ? 'bg-surface text-on-surface shadow-sm border border-outline-variant/50' : 'text-on-surface-variant hover:bg-surface-variant/50 border border-transparent'}`}
                     >
-                      <span className="material-symbols-outlined text-[18px]">light_mode</span>
+                      <Sun className="w-[18px] h-[18px]" />
                       {t('light')}
                     </button>
                     <button
                       onClick={() => onSetTheme('dark')}
                       className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-ui-button text-ui-button transition-colors ${settings.theme === 'dark' ? 'bg-primary text-on-primary shadow-sm border border-primary' : 'text-on-surface-variant hover:bg-surface-variant/50 border border-transparent'}`}
                     >
-                      <span className="material-symbols-outlined text-[18px]">dark_mode</span>
+                      <Moon className="w-[18px] h-[18px]" />
                       {t('dark')}
                     </button>
                     <button
                       onClick={() => onSetTheme('sepia')}
                       className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-ui-button text-ui-button transition-colors ${settings.theme === 'sepia' ? 'bg-surface text-on-surface shadow-sm border border-outline-variant/80' : 'text-on-surface-variant hover:bg-surface-variant/50 border border-transparent'}`}
                     >
-                      <span className="material-symbols-outlined text-[18px]">coffee</span>
+                      <Coffee className="w-[18px] h-[18px]" />
                       {t('sepia')}
                     </button>
                   </div>
@@ -105,7 +106,7 @@ export function SettingsPanel({
                     <span className="font-ui-label-sm text-on-surface-variant">{settings.fontSize}px</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="material-symbols-outlined text-[16px] text-on-surface-variant">format_size</span>
+                    <Type className="w-4 h-4 text-on-surface-variant" />
                     <input
                       type="range"
                       min={14}
@@ -115,7 +116,7 @@ export function SettingsPanel({
                       onChange={(e) => onSetFontSize(Number(e.target.value))}
                       className="flex-1 accent-primary h-1.5 bg-surface-variant rounded-full appearance-none outline-none cursor-pointer"
                     />
-                    <span className="material-symbols-outlined text-[24px] text-on-surface-variant">format_size</span>
+                    <Type className="w-6 h-6 text-on-surface-variant" />
                   </div>
                 </div>
 
@@ -126,7 +127,7 @@ export function SettingsPanel({
                     <span className="font-ui-label-sm text-on-surface-variant">{settings.lineHeight.toFixed(1)}</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="material-symbols-outlined text-[18px] text-on-surface-variant">format_line_spacing</span>
+                    <AlignJustify className="w-[18px] h-[18px] text-on-surface-variant" />
                     <input
                       type="range"
                       min={1.4}
@@ -146,7 +147,7 @@ export function SettingsPanel({
                     <span className="font-ui-label-sm text-on-surface-variant">{settings.maxWidth}px</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="material-symbols-outlined text-[18px] text-on-surface-variant">width_normal</span>
+                    <MoveHorizontal className="w-[18px] h-[18px] text-on-surface-variant" />
                     <input
                       type="range"
                       min={520}
@@ -166,7 +167,7 @@ export function SettingsPanel({
                     <span className="font-ui-label-sm text-on-surface-variant">{settings.hPadding.toFixed(1)}rem</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="material-symbols-outlined text-[18px] text-on-surface-variant">format_indent_increase</span>
+                    <Indent className="w-[18px] h-[18px] text-on-surface-variant" />
                     <input
                       type="range"
                       min={0.75}
@@ -186,7 +187,7 @@ export function SettingsPanel({
                       onClick={onToggleFullscreen}
                       className="flex items-center justify-center gap-2 py-3 rounded-xl border border-outline-variant/30 text-on-surface hover:bg-surface-variant/30 transition-colors font-ui-button text-ui-button w-full"
                     >
-                      <span className="material-symbols-outlined text-[18px]">{isFullscreen ? 'fullscreen_exit' : 'fullscreen'}</span>
+                      {isFullscreen ? <Minimize className="w-[18px] h-[18px]" /> : <Maximize className="w-[18px] h-[18px]" />}
                       {isFullscreen ? t('exitFullscreen') : t('fullscreen')}
                     </button>
                   )}
@@ -196,7 +197,7 @@ export function SettingsPanel({
                       onClick={() => { onBackToLibrary(); onClose(); }}
                       className="flex items-center justify-center gap-2 py-3 rounded-xl border border-outline-variant/30 text-on-surface hover:bg-surface-variant/30 transition-colors font-ui-button text-ui-button w-full"
                     >
-                      <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                      <ArrowLeft className="w-[18px] h-[18px]" />
                       {t('back')}
                     </button>
                   )}

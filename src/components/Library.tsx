@@ -7,6 +7,7 @@ import { SettingsPanel } from './SettingsPanel';
 import { parseEpub } from '../services/epubParser';
 import { useLanguage } from '../hooks/useLanguage';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { Settings, Loader2, Upload, Book as BookIcon, Pen, Trash2, BookOpen } from 'lucide-react';
 
 interface LibraryProps {
   books: Book[];
@@ -118,9 +119,9 @@ export function Library({
             <button 
               onClick={() => setSettingsOpen(true)}
               aria-label="Settings" 
-              className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-variant/30 transition-colors active:scale-95 duration-200 text-on-surface"
+              className="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-surface-variant/30 transition-colors active:scale-95 duration-200 text-on-surface"
             >
-              <span className="material-symbols-outlined">settings</span>
+              <Settings className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -149,9 +150,9 @@ export function Library({
                 style={{ pointerEvents: importing ? 'none' : 'auto' }}
               >
                 {importing ? (
-                  <span className="material-symbols-outlined animate-spin text-[16px]">sync</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <span className="material-symbols-outlined text-[16px]">upload_file</span>
+                  <Upload className="w-4 h-4" />
                 )}
                 {t('addEpub')}
               </label>
@@ -169,7 +170,7 @@ export function Library({
                       <img src={book.coverImage} alt="Cover" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <span className="material-symbols-outlined text-[32px] text-on-surface-variant opacity-50">book</span>
+                        <BookIcon className="w-8 h-8 text-on-surface-variant opacity-50" />
                       </div>
                     )}
                   </div>
@@ -191,15 +192,15 @@ export function Library({
                               db.epubBooks.update(book.id, { title: newTitle.trim() }).catch(console.error);
                             }
                           }}
-                          className="w-8 h-8 rounded-full bg-surface-variant text-on-surface flex items-center justify-center hover:bg-surface-container-highest transition-colors"
+                          className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 transition-colors"
                         >
-                          <span className="material-symbols-outlined text-[16px]">edit</span>
+                          <Pen className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={(e) => deleteEpub(e, book.id)}
                           className="w-8 h-8 rounded-full bg-error-container/50 text-error flex items-center justify-center hover:bg-error-container transition-colors"
                         >
-                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -236,9 +237,9 @@ export function Library({
                   style={{ pointerEvents: importing ? 'none' : 'auto' }}
                 >
                   {importing ? (
-                    <span className="material-symbols-outlined animate-spin text-[16px]">sync</span>
+                    <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    <span className="material-symbols-outlined text-[16px]">upload_file</span>
+                    <Upload className="w-4 h-4" />
                   )}
                   {t('addEpub')}
                 </label>
@@ -247,7 +248,7 @@ export function Library({
           </div>
           {!loading && books.length === 0 && (
             <div className="bg-surface-container/50 border border-outline-variant/30 rounded-xl p-8 flex flex-col items-center justify-center gap-4 text-center">
-              <span className="material-symbols-outlined text-[48px] text-on-surface-variant">auto_stories</span>
+              <BookOpen className="w-12 h-12 text-on-surface-variant" />
               <p className="text-on-surface-variant">{t('noBooks')}</p>
             </div>
           )}
