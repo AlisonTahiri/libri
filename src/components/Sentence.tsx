@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, memo } from 'react';
 
 interface SentenceProps {
   id: string;
@@ -8,7 +8,7 @@ interface SentenceProps {
   onTap: (id: string, translation: string, element: HTMLElement) => void;
 }
 
-export function Sentence({ id, text, translation, isActive, onTap }: SentenceProps) {
+export const Sentence = memo(function Sentence({ id, text, translation, isActive, onTap }: SentenceProps) {
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLSpanElement>) => {
       e.stopPropagation();
@@ -29,4 +29,4 @@ export function Sentence({ id, text, translation, isActive, onTap }: SentencePro
       {text}
     </span>
   );
-}
+});

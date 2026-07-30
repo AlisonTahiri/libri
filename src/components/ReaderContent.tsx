@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, memo } from 'react';
 import { Sentence } from './Sentence';
 import { useLanguage } from '../hooks/useLanguage';
 import type { ParagraphWithSentences } from '../types';
@@ -9,7 +9,7 @@ interface ReaderContentProps {
   onSentenceTap: (id: string, translation: string, element: HTMLElement) => void;
 }
 
-export function ReaderContent({ paragraphs, activeSentenceId, onSentenceTap }: ReaderContentProps) {
+export const ReaderContent = memo(function ReaderContent({ paragraphs, activeSentenceId, onSentenceTap }: ReaderContentProps) {
   const handleTap = useCallback(
     (id: string, translation: string, element: HTMLElement) => {
       onSentenceTap(id, translation, element);
@@ -55,4 +55,4 @@ export function ReaderContent({ paragraphs, activeSentenceId, onSentenceTap }: R
       ))}
     </div>
   );
-}
+});

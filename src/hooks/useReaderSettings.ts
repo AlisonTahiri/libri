@@ -61,11 +61,11 @@ export function useReaderSettings() {
   }, [updateSettings]);
 
   const setLineHeight = useCallback((lineHeight: number) => {
-    updateSettings({ lineHeight: Math.max(1.4, Math.min(2.4, lineHeight)) });
+    updateSettings({ lineHeight: Math.max(1.2, Math.min(2.5, lineHeight)) });
   }, [updateSettings]);
 
   const setMaxWidth = useCallback((maxWidth: number) => {
-    updateSettings({ maxWidth: Math.max(520, Math.min(800, maxWidth)) });
+    updateSettings({ maxWidth: Math.max(400, Math.min(900, maxWidth)) });
   }, [updateSettings]);
 
   const setHPadding = useCallback((hPadding: number) => {

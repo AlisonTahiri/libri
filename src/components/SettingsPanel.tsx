@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Theme, ReaderSettings } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
@@ -30,6 +31,13 @@ export function SettingsPanel({
   onToggleFullscreen,
 }: SettingsPanelProps) {
   const { t } = useLanguage();
+  const [activeSlider, setActiveSlider] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handlePointerUp = () => setActiveSlider(null);
+    window.addEventListener('pointerup', handlePointerUp);
+    return () => window.removeEventListener('pointerup', handlePointerUp);
+  }, []);
 
   return (
     <AnimatePresence>
@@ -39,7 +47,7 @@ export function SettingsPanel({
           <motion.div
             className="fixed inset-0 bg-inverse-surface/20 backdrop-blur-sm z-[100]"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: activeSlider ? 0 : 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
@@ -47,14 +55,18 @@ export function SettingsPanel({
 
           {/* Panel */}
           <motion.div
-            className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-[800px] z-[101] bg-surface/90 backdrop-blur-2xl border-t sm:border-x border-outline-variant/20 rounded-t-[24px] shadow-[0px_-20px_40px_rgba(0,0,0,0.1)] flex flex-col max-h-[90vh]"
+            className={`fixed bottom-0 left-0 right-0 mx-auto w-full max-w-[800px] z-[101] border-t sm:border-x rounded-t-[24px] flex flex-col max-h-[90vh] transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ${
+              activeSlider
+                ? 'bg-transparent border-transparent shadow-none backdrop-blur-none'
+                : 'bg-surface/90 border-outline-variant/20 shadow-[0px_-20px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl'
+            }`}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            transition={{ type: 'tween', duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
           >
             {/* Handle & Close Button */}
-            <div className="w-full flex justify-between items-start pt-3 pb-2 px-4 flex-shrink-0 relative">
+            <div className={`w-full flex justify-between items-start pt-3 pb-2 px-4 flex-shrink-0 relative transition-opacity duration-300 ${activeSlider ? 'opacity-0 pointer-events-none' : ''}`}>
               <div className="w-10" /> {/* Spacer */}
               <div className="w-12 h-1.5 bg-outline-variant/40 rounded-full mt-2" />
               <button
@@ -70,15 +82,15 @@ export function SettingsPanel({
               <div className="flex flex-col gap-6 py-4 max-w-lg mx-auto">
                 
                 {/* Language */}
-                <div className="flex flex-col gap-3">
+                <div className={`flex flex-col gap-3 transition-opacity duration-300 ${activeSlider ? 'opacity-0 pointer-events-none' : ''}`}>
                   <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('language')}</span>
                   <div className="flex gap-2">
                     <LanguageSwitcher />
                   </div>
                 </div>
 
-                {/* Theme Switcher */}
-                <div className="flex flex-col gap-3">
+                {/* Theme */}
+                <div className={`flex flex-col gap-3 transition-opacity duration-300 ${activeSlider ? 'opacity-0 pointer-events-none' : ''}`}>
                   <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('theme')}</span>
                   <div className="flex bg-surface-container-highest p-1 rounded-xl">
                     <button
@@ -106,7 +118,7 @@ export function SettingsPanel({
                 </div>
 
                 {/* Font Size */}
-                <div className="flex flex-col gap-3">
+                <div className={`flex flex-col gap-3 transition-opacity duration-300 ${activeSlider && activeSlider !== 'fontSize' ? 'opacity-0 pointer-events-none' : ''}`}>
                   <div className="flex justify-between items-center">
                     <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('textSize')}</span>
                     <span className="font-ui-label-sm text-on-surface-variant">{settings.fontSize}px</span>
@@ -120,6 +132,7 @@ export function SettingsPanel({
                       step={1}
                       value={settings.fontSize}
                       onChange={(e) => onSetFontSize(Number(e.target.value))}
+                      onPointerDown={() => setActiveSlider('fontSize')}
                       className="flex-1 accent-primary h-1.5 bg-surface-variant rounded-full appearance-none outline-none cursor-pointer"
                     />
                     <Type className="w-6 h-6 text-on-surface-variant" />
@@ -127,7 +140,7 @@ export function SettingsPanel({
                 </div>
 
                 {/* Line Height */}
-                <div className="flex flex-col gap-3">
+                <div className={`flex flex-col gap-3 transition-opacity duration-300 ${activeSlider && activeSlider !== 'lineHeight' ? 'opacity-0 pointer-events-none' : ''}`}>
                   <div className="flex justify-between items-center">
                     <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('lineHeight')}</span>
                     <span className="font-ui-label-sm text-on-surface-variant">{settings.lineHeight.toFixed(1)}</span>
@@ -136,18 +149,19 @@ export function SettingsPanel({
                     <AlignJustify className="w-[18px] h-[18px] text-on-surface-variant" />
                     <input
                       type="range"
-                      min={1.4}
-                      max={2.4}
+                      min={1.2}
+                      max={2.5}
                       step={0.1}
                       value={settings.lineHeight}
                       onChange={(e) => onSetLineHeight(Number(e.target.value))}
+                      onPointerDown={() => setActiveSlider('lineHeight')}
                       className="flex-1 accent-primary h-1.5 bg-surface-variant rounded-full appearance-none outline-none cursor-pointer"
                     />
                   </div>
                 </div>
 
                 {/* Max Width */}
-                <div className="flex flex-col gap-3">
+                <div className={`flex flex-col gap-3 transition-opacity duration-300 ${activeSlider && activeSlider !== 'maxWidth' ? 'opacity-0 pointer-events-none' : ''}`}>
                   <div className="flex justify-between items-center">
                     <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('pageWidth')}</span>
                     <span className="font-ui-label-sm text-on-surface-variant">{settings.maxWidth}px</span>
@@ -157,17 +171,18 @@ export function SettingsPanel({
                     <input
                       type="range"
                       min={520}
-                      max={800}
+                      max={900}
                       step={20}
                       value={settings.maxWidth}
                       onChange={(e) => onSetMaxWidth(Number(e.target.value))}
+                      onPointerDown={() => setActiveSlider('maxWidth')}
                       className="flex-1 accent-primary h-1.5 bg-surface-variant rounded-full appearance-none outline-none cursor-pointer"
                     />
                   </div>
                 </div>
 
                 {/* Horizontal Padding */}
-                <div className="flex flex-col gap-3">
+                <div className={`flex flex-col gap-3 transition-opacity duration-300 ${activeSlider && activeSlider !== 'hPadding' ? 'opacity-0 pointer-events-none' : ''}`}>
                   <div className="flex justify-between items-center">
                     <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('sideMargins')}</span>
                     <span className="font-ui-label-sm text-on-surface-variant">{settings.hPadding.toFixed(1)}rem</span>
@@ -181,13 +196,14 @@ export function SettingsPanel({
                       step={0.25}
                       value={settings.hPadding}
                       onChange={(e) => onSetHPadding(Number(e.target.value))}
+                      onPointerDown={() => setActiveSlider('hPadding')}
                       className="flex-1 accent-primary h-1.5 bg-surface-variant rounded-full appearance-none outline-none cursor-pointer"
                     />
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col gap-3 mt-2 border-t border-outline-variant/20 pt-6">
+                <div className={`flex flex-col gap-3 mt-2 border-t border-outline-variant/20 pt-6 transition-opacity duration-300 ${activeSlider ? 'opacity-0 pointer-events-none' : ''}`}>
                   {onToggleFullscreen && (
                     <button
                       onClick={onToggleFullscreen}
