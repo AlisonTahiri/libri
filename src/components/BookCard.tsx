@@ -1,5 +1,4 @@
 import type { Book } from '../types';
-import { BookOpen, Globe, Sparkles, Hash } from 'lucide-react';
 
 interface BookCardProps {
   book: Book;
@@ -24,32 +23,46 @@ export function BookCard({ book, onClick }: BookCardProps) {
   const displayAuthor = isOriginal ? null : book.author;
 
   return (
-    <div className="book-card" onClick={onClick} role="button" tabIndex={0}>
-      <h3 className="book-card-title">{book.title}</h3>
-      {displayAuthor && <p className="book-card-author">by {displayAuthor}</p>}
-
-      <div className="book-card-meta">
-        {isOriginal && (
-          <span className="book-card-badge originals-badge">
-            <Sparkles size={10} />
-            Originals
-          </span>
-        )}
-        {book.level && (
-          <span className="book-card-badge level-badge">
-            <Hash size={10} />
-            {book.level}
-          </span>
-        )}
-        <span className="book-card-badge">
-          <Globe size={10} />
-          {sourceLang} → {displayTargetLang}
-        </span>
-        <span className="book-card-chapters">
-          <BookOpen size={12} />
-          {book.total_chapters} kapituj
-        </span>
+    <article 
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      className="bg-surface-container-lowest rounded-xl p-3 flex flex-col gap-3 shadow-[0px_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0px_15px_40px_rgba(0,0,0,0.08)] transition-shadow duration-300 group cursor-pointer border border-transparent hover:border-outline-variant/10"
+    >
+      <div className="w-full aspect-[2/3] rounded-lg overflow-hidden shadow-sm relative">
+        <div className="absolute inset-0 bg-surface-variant flex items-center justify-center">
+          <span className="material-symbols-outlined text-[48px] text-on-surface-variant opacity-30">book</span>
+        </div>
       </div>
-    </div>
+      <div className="flex flex-col px-1">
+        <h3 className="font-body-reading text-[16px] font-semibold text-on-surface leading-tight mb-0.5 truncate" title={book.title}>
+          {book.title}
+        </h3>
+        {displayAuthor && (
+          <p className="font-ui-label-sm text-[11px] text-on-surface-variant truncate mb-2" title={displayAuthor}>
+            {displayAuthor}
+          </p>
+        )}
+        <div className="flex items-center gap-1.5 flex-wrap mt-auto">
+          {isOriginal && (
+            <span className="bg-primary/10 text-primary font-ui-label-sm text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+              <span className="material-symbols-outlined text-[10px]">auto_awesome</span>
+              Originals
+            </span>
+          )}
+          {book.level && (
+            <span className="bg-surface-variant text-on-surface-variant font-ui-label-sm text-[9px] px-1.5 py-0.5 rounded-full">
+              {book.level}
+            </span>
+          )}
+          <span className="bg-surface-variant text-on-surface-variant font-ui-label-sm text-[9px] px-1.5 py-0.5 rounded-full">
+            {sourceLang} &rarr; {displayTargetLang}
+          </span>
+          <span className="bg-surface-variant text-on-surface-variant font-ui-label-sm text-[9px] px-1.5 py-0.5 rounded-full">
+            {book.total_chapters} Kapituj
+          </span>
+        </div>
+      </div>
+    </article>
   );
 }

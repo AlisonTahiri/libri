@@ -27,6 +27,8 @@ export const translations = {
     epubBooks: 'EPUB Books',
     fullscreen: 'Full Screen',
     exitFullscreen: 'Exit Full Screen',
+    prev: 'Previous',
+    next: 'Next',
   },
   sq: {
     library: 'Libraria',
@@ -54,6 +56,8 @@ export const translations = {
     epubBooks: 'Librat EPUB',
     fullscreen: 'Ekran i plotë',
     exitFullscreen: 'Dil nga ekrani i plotë',
+    prev: 'Para',
+    next: 'Pas',
   }
 };
 

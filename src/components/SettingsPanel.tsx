@@ -1,14 +1,4 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Sun,
-  Moon,
-  Coffee,
-  Type,
-  AlignVerticalSpaceAround,
-  Maximize,
-  Minimize,
-  ArrowLeft,
-} from 'lucide-react';
 import type { Theme, ReaderSettings } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -48,7 +38,7 @@ export function SettingsPanel({
         <>
           {/* Overlay */}
           <motion.div
-            className="panel-overlay"
+            className="fixed inset-0 bg-inverse-surface/20 backdrop-blur-sm z-[100]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -58,164 +48,160 @@ export function SettingsPanel({
 
           {/* Panel */}
           <motion.div
-            className="settings-panel"
+            className="fixed bottom-0 left-0 w-full z-[101] bg-surface/90 backdrop-blur-2xl border-t border-outline-variant/20 rounded-t-[24px] shadow-[0px_-20px_40px_rgba(0,0,0,0.1)] flex flex-col max-h-[90vh]"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
           >
-            <div className="panel-handle" />
+            {/* Handle */}
+            <div className="w-full flex justify-center pt-3 pb-2 flex-shrink-0">
+              <div className="w-12 h-1.5 bg-outline-variant/40 rounded-full" />
+            </div>
 
-            <div className="safe-bottom">
-              {/* Language */}
-              <div className="panel-section">
-                <div className="panel-section-title">{t('language')}</div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <LanguageSwitcher />
+            <div className="px-6 pb-safe overflow-y-auto hide-scrollbar flex-1">
+              <div className="flex flex-col gap-6 py-4 max-w-lg mx-auto">
+                
+                {/* Language */}
+                <div className="flex flex-col gap-3">
+                  <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('language')}</span>
+                  <div className="flex gap-2">
+                    <LanguageSwitcher />
+                  </div>
                 </div>
-              </div>
 
-              {/* Theme */}
-              <div className="panel-section">
-                <div className="panel-section-title">{t('theme')}</div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button
-                    className={`theme-btn theme-btn-dark ${settings.theme === 'dark' ? 'active' : ''}`}
-                    onClick={() => onSetTheme('dark')}
-                  >
-                    <Moon size={14} style={{ marginRight: 4, verticalAlign: -2 }} />
-                    Dark
-                  </button>
-                  <button
-                    className={`theme-btn theme-btn-light ${settings.theme === 'light' ? 'active' : ''}`}
-                    onClick={() => onSetTheme('light')}
-                  >
-                    <Sun size={14} style={{ marginRight: 4, verticalAlign: -2 }} />
-                    Light
-                  </button>
-                  <button
-                    className={`theme-btn theme-btn-sepia ${settings.theme === 'sepia' ? 'active' : ''}`}
-                    onClick={() => onSetTheme('sepia')}
-                  >
-                    <Coffee size={14} style={{ marginRight: 4, verticalAlign: -2 }} />
-                    {t('sepia')}
-                  </button>
+                {/* Theme Switcher */}
+                <div className="flex flex-col gap-3">
+                  <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('theme')}</span>
+                  <div className="flex bg-surface-container-highest p-1 rounded-xl">
+                    <button
+                      onClick={() => onSetTheme('light')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-ui-button text-ui-button transition-colors ${settings.theme === 'light' ? 'bg-surface text-on-surface shadow-sm border border-outline-variant/50' : 'text-on-surface-variant hover:bg-surface-variant/50 border border-transparent'}`}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">light_mode</span>
+                      {t('light')}
+                    </button>
+                    <button
+                      onClick={() => onSetTheme('dark')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-ui-button text-ui-button transition-colors ${settings.theme === 'dark' ? 'bg-primary text-on-primary shadow-sm border border-primary' : 'text-on-surface-variant hover:bg-surface-variant/50 border border-transparent'}`}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">dark_mode</span>
+                      {t('dark')}
+                    </button>
+                    <button
+                      onClick={() => onSetTheme('sepia')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-ui-button text-ui-button transition-colors ${settings.theme === 'sepia' ? 'bg-surface text-on-surface shadow-sm border border-outline-variant/80' : 'text-on-surface-variant hover:bg-surface-variant/50 border border-transparent'}`}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">coffee</span>
+                      {t('sepia')}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Font Size */}
-              <div className="panel-section">
-                <div className="panel-section-title">
-                  <Type size={12} style={{ marginRight: 4, verticalAlign: -1 }} />
-                  {t('textSize')} — {settings.fontSize}px
+                {/* Font Size */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('textSize')}</span>
+                    <span className="font-ui-label-sm text-on-surface-variant">{settings.fontSize}px</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="material-symbols-outlined text-[16px] text-on-surface-variant">format_size</span>
+                    <input
+                      type="range"
+                      min={14}
+                      max={28}
+                      step={1}
+                      value={settings.fontSize}
+                      onChange={(e) => onSetFontSize(Number(e.target.value))}
+                      className="flex-1 accent-primary h-1.5 bg-surface-variant rounded-full appearance-none outline-none cursor-pointer"
+                    />
+                    <span className="material-symbols-outlined text-[24px] text-on-surface-variant">format_size</span>
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  className="custom-slider"
-                  min={14}
-                  max={28}
-                  step={1}
-                  value={settings.fontSize}
-                  onChange={(e) => onSetFontSize(Number(e.target.value))}
-                />
-              </div>
 
-              {/* Line Height */}
-              <div className="panel-section">
-                <div className="panel-section-title">
-                  <AlignVerticalSpaceAround size={12} style={{ marginRight: 4, verticalAlign: -1 }} />
-                  {t('lineHeight')} — {settings.lineHeight.toFixed(1)}
+                {/* Line Height */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('lineHeight')}</span>
+                    <span className="font-ui-label-sm text-on-surface-variant">{settings.lineHeight.toFixed(1)}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="material-symbols-outlined text-[18px] text-on-surface-variant">format_line_spacing</span>
+                    <input
+                      type="range"
+                      min={1.4}
+                      max={2.4}
+                      step={0.1}
+                      value={settings.lineHeight}
+                      onChange={(e) => onSetLineHeight(Number(e.target.value))}
+                      className="flex-1 accent-primary h-1.5 bg-surface-variant rounded-full appearance-none outline-none cursor-pointer"
+                    />
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  className="custom-slider"
-                  min={1.4}
-                  max={2.4}
-                  step={0.1}
-                  value={settings.lineHeight}
-                  onChange={(e) => onSetLineHeight(Number(e.target.value))}
-                />
-              </div>
 
-              {/* Max Width */}
-              <div className="panel-section">
-                <div className="panel-section-title">
-                  {t('pageWidth')} — {settings.maxWidth}px
+                {/* Max Width */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('pageWidth')}</span>
+                    <span className="font-ui-label-sm text-on-surface-variant">{settings.maxWidth}px</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="material-symbols-outlined text-[18px] text-on-surface-variant">width_normal</span>
+                    <input
+                      type="range"
+                      min={520}
+                      max={800}
+                      step={20}
+                      value={settings.maxWidth}
+                      onChange={(e) => onSetMaxWidth(Number(e.target.value))}
+                      className="flex-1 accent-primary h-1.5 bg-surface-variant rounded-full appearance-none outline-none cursor-pointer"
+                    />
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  className="custom-slider"
-                  min={520}
-                  max={800}
-                  step={20}
-                  value={settings.maxWidth}
-                  onChange={(e) => onSetMaxWidth(Number(e.target.value))}
-                />
-              </div>
 
-              {/* Horizontal Padding */}
-              <div className="panel-section">
-                <div className="panel-section-title">
-                  {t('sideMargins')} — {settings.hPadding.toFixed(1)}rem
+                {/* Horizontal Padding */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('sideMargins')}</span>
+                    <span className="font-ui-label-sm text-on-surface-variant">{settings.hPadding.toFixed(1)}rem</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="material-symbols-outlined text-[18px] text-on-surface-variant">format_indent_increase</span>
+                    <input
+                      type="range"
+                      min={0.75}
+                      max={3}
+                      step={0.25}
+                      value={settings.hPadding}
+                      onChange={(e) => onSetHPadding(Number(e.target.value))}
+                      className="flex-1 accent-primary h-1.5 bg-surface-variant rounded-full appearance-none outline-none cursor-pointer"
+                    />
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  className="custom-slider"
-                  min={0.75}
-                  max={3}
-                  step={0.25}
-                  value={settings.hPadding}
-                  onChange={(e) => onSetHPadding(Number(e.target.value))}
-                />
-              </div>
 
-              {/* Actions */}
-              <div className="panel-section" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {onToggleFullscreen && (
-                  <button
-                    onClick={onToggleFullscreen}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      padding: '0.7rem 1rem',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      background: 'transparent',
-                      color: 'var(--text-primary)',
-                      fontFamily: 'var(--ui-font-family)',
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
-                      transition: 'background 0.15s ease',
-                    }}
-                  >
-                    {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-                    {isFullscreen ? t('exitFullscreen') : t('fullscreen')}
-                  </button>
-                )}
+                {/* Actions */}
+                <div className="flex flex-col gap-3 mt-2 border-t border-outline-variant/20 pt-6">
+                  {onToggleFullscreen && (
+                    <button
+                      onClick={onToggleFullscreen}
+                      className="flex items-center justify-center gap-2 py-3 rounded-xl border border-outline-variant/30 text-on-surface hover:bg-surface-variant/30 transition-colors font-ui-button text-ui-button w-full"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">{isFullscreen ? 'fullscreen_exit' : 'fullscreen'}</span>
+                      {isFullscreen ? t('exitFullscreen') : t('fullscreen')}
+                    </button>
+                  )}
 
-                {onBackToLibrary && (
-                  <button
-                    onClick={() => { onBackToLibrary(); onClose(); }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      padding: '0.7rem 1rem',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      background: 'transparent',
-                      color: 'var(--text-secondary)',
-                      fontFamily: 'var(--ui-font-family)',
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
-                      transition: 'background 0.15s ease',
-                    }}
-                  >
-                    <ArrowLeft size={16} />
-                    {t('back')}
-                  </button>
-                )}
+                  {onBackToLibrary && (
+                    <button
+                      onClick={() => { onBackToLibrary(); onClose(); }}
+                      className="flex items-center justify-center gap-2 py-3 rounded-xl border border-outline-variant/30 text-on-surface hover:bg-surface-variant/30 transition-colors font-ui-button text-ui-button w-full"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                      {t('back')}
+                    </button>
+                  )}
+                </div>
+
               </div>
             </div>
           </motion.div>

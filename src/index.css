@@ -1,250 +1,165 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400;1,7..72,500&display=swap');
 @import "tailwindcss";
 
-/* ═══════════════════════════════════════════════════════
-   LIBRI — Design System
-   Three reading themes: Dark (default), Light, Sepia
-   ═══════════════════════════════════════════════════════ */
+@theme {
+  /* Colors */
+  --color-error: #ba1a1a;
+  --color-inverse-surface: #303032;
+  --color-surface-variant: #e4e2e4;
+  --color-primary-fixed: #d3e4fe;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-tertiary-fixed: #28180b;
+  --color-on-secondary-fixed-variant: #5d4201;
+  --color-on-error: #ffffff;
+  --color-primary: #4c5b71;
+  --color-secondary-container: #fed488;
+  --color-on-tertiary-fixed-variant: #574333;
+  --color-on-error-container: #93000a;
+  --color-surface: #fbf9fa;
+  --color-on-secondary: #ffffff;
+  --color-tertiary-container: #866e5c;
+  --color-on-primary-fixed: #0b1c30;
+  --color-outline-variant: #c4c6cd;
+  --color-secondary-fixed: #ffdea5;
+  --color-secondary: #775a19;
+  --color-tertiary: #6c5645;
+  --color-on-surface-variant: #44474c;
+  --color-tertiary-fixed: #fcddc7;
+  --color-error-container: #ffdad6;
+  --color-secondary-fixed-dim: #e9c176;
+  --color-on-secondary-container: #785a1a;
+  --color-inverse-primary: #b7c8e1;
+  --color-on-secondary-fixed: #261900;
+  --color-outline: #74777d;
+  --color-on-tertiary-container: #fff8f5;
+  --color-primary-fixed-dim: #b7c8e1;
+  --color-tertiary-fixed-dim: #dfc1ac;
+  --color-surface-bright: #fbf9fa;
+  --color-on-primary-container: #f9f9ff;
+  --color-on-surface: #1b1b1d;
+  --color-primary-container: #64748b;
+  --color-surface-tint: #505f76;
+  --color-on-primary-fixed-variant: #38485d;
+  --color-surface-dim: #dbd9db;
+  --color-inverse-on-surface: #f2f0f2;
+  --color-on-background: #1b1b1d;
+  --color-surface-container: #efedef;
+  --color-surface-container-high: #eae7e9;
+  --color-on-tertiary: #ffffff;
+  --color-surface-container-highest: #e4e2e4;
+  --color-on-primary: #ffffff;
+  --color-background: #fbf9fa;
+  --color-surface-container-low: #f5f3f5;
 
-/* ── Dark Theme (Default) ── */
-:root,
-:root.dark {
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-surface: #1c2128;
-  --text-primary: #e6edf3;
-  --text-secondary: #7d8590;
-  --text-muted: #484f58;
-  --accent: #58a6ff;
-  --accent-hover: #79c0ff;
-  --accent-subtle: rgba(88, 166, 255, 0.08);
-  --border: #30363d;
-  --border-subtle: #21262d;
-  --shadow-color: rgba(0, 0, 0, 0.4);
+  /* Spacing */
+  --spacing-gutter: 1rem;
+  --spacing-reading-padding-x: 1.25rem;
+  --spacing-container-margin: 1.5rem;
+  --spacing-ui-gap-md: 1rem;
+  --spacing-ui-gap-xs: 0.25rem;
+  --spacing-reading-padding-y: 2rem;
+  --spacing-ui-gap-lg: 2rem;
 
-  /* Reader-specific */
-  --reader-bg: #0d1117;
-  --reader-text: #c9d1d9;
-  --sentence-highlight: rgba(88, 166, 255, 0.12);
-  --sentence-active: rgba(88, 166, 255, 0.2);
-  --tooltip-bg: #2d333b;
-  --tooltip-border: #444c56;
-  --tooltip-text: #e6edf3;
-  --tooltip-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  /* Typography Fonts */
+  --font-ui-label-sm: "Inter", sans-serif;
+  --font-body-reading: "Lora", serif;
+  --font-display-reading: "Lora", serif;
+  --font-ui-header: "Inter", sans-serif;
+  --font-ui-button: "Inter", sans-serif;
+  --font-display-reading-mobile: "Lora", serif;
 
-  /* FAB */
-  --fab-bg: #2d333b;
-  --fab-icon: #e6edf3;
-  --fab-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  /* Font Sizes */
+  --text-ui-label-sm: 12px;
+  --text-ui-label-sm--line-height: 16px;
+  --text-ui-label-sm--letter-spacing: 0.05em;
+  --text-ui-label-sm--font-weight: 500;
 
-  /* Settings panel */
-  --panel-bg: #161b22;
-  --panel-border: #30363d;
-  --slider-track: #30363d;
-  --slider-fill: #58a6ff;
-  --slider-thumb: #e6edf3;
+  --text-body-reading: 18px;
+  --text-body-reading--line-height: 1.7;
+  --text-body-reading--font-weight: 400;
+
+  --text-display-reading: 32px;
+  --text-display-reading--line-height: 1.3;
+  --text-display-reading--font-weight: 600;
+
+  --text-ui-header: 16px;
+  --text-ui-header--line-height: 24px;
+  --text-ui-header--letter-spacing: 0.02em;
+  --text-ui-header--font-weight: 600;
+
+  --text-ui-button: 14px;
+  --text-ui-button--line-height: 20px;
+  --text-ui-button--font-weight: 600;
+
+  --text-display-reading-mobile: 24px;
+  --text-display-reading-mobile--line-height: 1.3;
+  --text-display-reading-mobile--font-weight: 600;
 }
 
-/* ── Light Theme ── */
-:root.light {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f6f8fa;
-  --bg-surface: #ffffff;
-  --text-primary: #1f2328;
-  --text-secondary: #656d76;
-  --text-muted: #8b949e;
-  --accent: #0969da;
-  --accent-hover: #0550ae;
-  --accent-subtle: rgba(9, 105, 218, 0.06);
-  --border: #d0d7de;
-  --border-subtle: #e8ebef;
-  --shadow-color: rgba(31, 35, 40, 0.08);
-
-  --reader-bg: #ffffff;
-  --reader-text: #1f2328;
-  --sentence-highlight: rgba(9, 105, 218, 0.08);
-  --sentence-active: rgba(9, 105, 218, 0.15);
-  --tooltip-bg: #ffffff;
-  --tooltip-border: #d0d7de;
-  --tooltip-text: #1f2328;
-  --tooltip-shadow: 0 8px 32px rgba(31, 35, 40, 0.15);
-
-  --fab-bg: #ffffff;
-  --fab-icon: #1f2328;
-  --fab-shadow: 0 4px 16px rgba(31, 35, 40, 0.12);
-
-  --panel-bg: #ffffff;
-  --panel-border: #d0d7de;
-  --slider-track: #d0d7de;
-  --slider-fill: #0969da;
-  --slider-thumb: #ffffff;
+/* Sepia Mode Overrides */
+html.sepia {
+  --color-background: #f4ecd8;
+  --color-surface: #efe6ce;
+  --color-surface-variant: #d5c6ab;
+  --color-surface-container-lowest: #f8f1e0;
+  --color-surface-container-highest: #e0d1b6;
+  --color-on-background: #4a3627;
+  --color-on-surface: #4a3627;
+  --color-on-surface-variant: #6b533b;
+  --color-primary: #8b6914;
+  --color-on-primary: #f4ecd8;
+  --color-outline: #8c785d;
+  --color-outline-variant: #b3a286;
 }
 
-/* ── Sepia Theme ── */
-:root.sepia {
-  --bg-primary: #f4ecd8;
-  --bg-secondary: #efe6ce;
-  --bg-surface: #f8f1e0;
-  --text-primary: #5b4636;
-  --text-secondary: #8b7355;
-  --text-muted: #a89478;
-  --accent: #8b6914;
-  --accent-hover: #6d5310;
-  --accent-subtle: rgba(139, 105, 20, 0.08);
-  --border: #d4c5a9;
-  --border-subtle: #e2d6be;
-  --shadow-color: rgba(91, 70, 54, 0.08);
-
-  --reader-bg: #f4ecd8;
-  --reader-text: #5b4636;
-  --sentence-highlight: rgba(139, 105, 20, 0.1);
-  --sentence-active: rgba(139, 105, 20, 0.18);
-  --tooltip-bg: #efe6ce;
-  --tooltip-border: #d4c5a9;
-  --tooltip-text: #5b4636;
-  --tooltip-shadow: 0 8px 32px rgba(91, 70, 54, 0.15);
-
-  --fab-bg: #efe6ce;
-  --fab-icon: #5b4636;
-  --fab-shadow: 0 4px 16px rgba(91, 70, 54, 0.12);
-
-  --panel-bg: #f4ecd8;
-  --panel-border: #d4c5a9;
-  --slider-track: #d4c5a9;
-  --slider-fill: #8b6914;
-  --slider-thumb: #f4ecd8;
-}
-
-/* ── Reader Settings (user-adjustable via CSS vars) ── */
-:root {
-  --reader-font-size: 18px;
-  --reader-line-height: 1.85;
-  --reader-max-width: 680px;
-  --reader-h-padding: 1.5rem;
-  --reader-font-family: 'Literata', Georgia, 'Times New Roman', serif;
-  --ui-font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-/* ═══════════════════════════════════════════════════════
-   BASE STYLES
-   ═══════════════════════════════════════════════════════ */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+/* Dark Mode Overrides */
+html.dark {
+  --color-background: #111827;
+  --color-surface: #1f2937;
+  --color-surface-variant: #374151;
+  --color-surface-container-lowest: #111827;
+  --color-on-background: #f3f4f6;
+  --color-on-surface: #f3f4f6;
+  --color-on-surface-variant: #9ca3af;
+  --color-primary: #93c5fd;
+  --color-on-primary: #1e3a8a;
+  --color-outline: #6b7280;
+  --color-outline-variant: #4b5563;
 }
 
 body {
-  font-family: var(--ui-font-family);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-height: 100dvh;
-  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Base styles for smooth theme transitions */
+body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-#root {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
+/* Safe area insets for notched devices */
+.safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
-/* ═══════════════════════════════════════════════════════
-   READER TYPOGRAPHY
-   ═══════════════════════════════════════════════════════ */
+.safe-top {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+}
 
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Reader specific typography */
 .reader-content {
-  font-family: var(--reader-font-family);
-  font-size: var(--reader-font-size);
-  line-height: var(--reader-line-height);
-  color: var(--reader-text);
-  max-width: var(--reader-max-width);
-  margin: 0 auto;
-  padding: 2rem var(--reader-h-padding);
+  font-family: "Lora", serif;
   text-wrap: pretty;
   font-variant-numeric: oldstyle-nums;
   -webkit-hyphens: auto;
   hyphens: auto;
 }
-
-.reader-paragraph {
-  margin-bottom: 1.2em;
-  text-indent: 0;
-}
-
-
-/* ═══════════════════════════════════════════════════════
-   EPUB CHAPTER CONTENT (raw HTML from EPUB parser)
-   ═══════════════════════════════════════════════════════ */
-
-.epub-chapter-content {
-  text-wrap: pretty;
-  -webkit-hyphens: auto;
-  hyphens: auto;
-  word-break: break-word;
-}
-
-.epub-chapter-content p {
-  margin: 0 0 1em;
-  text-align: justify;
-}
-
-.epub-chapter-content h1,
-.epub-chapter-content h2,
-.epub-chapter-content h3,
-.epub-chapter-content h4,
-.epub-chapter-content h5,
-.epub-chapter-content h6 {
-  font-weight: 700;
-  line-height: 1.25;
-  margin: 1.5em 0 0.6em;
-}
-
-.epub-chapter-content h1 { font-size: 1.6em; }
-.epub-chapter-content h2 { font-size: 1.35em; }
-.epub-chapter-content h3 { font-size: 1.15em; }
-
-.epub-chapter-content blockquote {
-  margin: 1em 0 1em 1.5rem;
-  padding-left: 1rem;
-  border-left: 3px solid var(--border);
-  font-style: italic;
-  opacity: 0.85;
-}
-
-.epub-chapter-content a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.epub-chapter-content em,
-.epub-chapter-content i { font-style: italic; }
-.epub-chapter-content strong,
-.epub-chapter-content b { font-weight: 700; }
-
-.epub-chapter-content ul,
-.epub-chapter-content ol {
-  padding-left: 1.5rem;
-  margin: 0.75em 0;
-}
-
-.epub-chapter-content li {
-  margin-bottom: 0.4em;
-}
-
-
-/* ═══════════════════════════════════════════════════════
-   SENTENCE INTERACTION
-   ═══════════════════════════════════════════════════════ */
 
 .sentence {
   cursor: pointer;
@@ -255,91 +170,22 @@ body {
 }
 
 .sentence:hover {
-  background-color: var(--sentence-highlight);
+  background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
 }
 
 .sentence.active {
-  background-color: var(--sentence-active);
-  box-shadow: 0 0 0 2px var(--sentence-active);
+  background-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
-/* ═══════════════════════════════════════════════════════
-   SCROLLBAR
-   ═══════════════════════════════════════════════════════ */
-
-::-webkit-scrollbar {
-  width: 4px;
+.progress-bar-container {
+  height: 3px;
+  background-color: transparent;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-/* ═══════════════════════════════════════════════════════
-   ANIMATIONS
-   ═══════════════════════════════════════════════════════ */
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ═══════════════════════════════════════════════════════
-   UTILITY CLASSES
-   ═══════════════════════════════════════════════════════ */
-
-.backdrop-blur {
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-}
-
-/* Safe area insets for notched devices */
-.safe-bottom {
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
-}
-
-.safe-top {
-  padding-top: max(0.5rem, env(safe-area-inset-top));
+.progress-bar {
+  height: 100%;
+  background-color: var(--color-primary);
+  transition: width 0.1s ease-out;
+  border-radius: 0 2px 2px 0;
 }

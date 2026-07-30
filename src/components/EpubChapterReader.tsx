@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SettingsPanel } from './SettingsPanel';
 import { ChapterNav } from './ChapterNav';
 import { useFullscreen } from '../hooks/useFullscreen';
@@ -207,9 +206,9 @@ export function EpubChapterReader({
     <div style={{ minHeight: '100dvh', background: bg }}>
 
       {/* Progress bar */}
-      <div className="progress-bar-container" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '100%', maxWidth: `${settings.maxWidth}px`, position: 'relative' }}>
-          <div className="progress-bar" style={{ width: `${scrollProgress}%`, position: 'absolute' }} />
+      <div className="fixed top-0 left-0 right-0 z-[100] flex justify-center h-[3px] bg-transparent">
+        <div style={{ width: '100%', maxWidth: `${settings.maxWidth}px`, height: '100%', position: 'relative' }}>
+          <div className="absolute top-0 left-0 h-full bg-primary rounded-r-[2px] transition-all duration-100 ease-out" style={{ width: `${scrollProgress}%` }} />
         </div>
       </div>
 
@@ -243,7 +242,7 @@ export function EpubChapterReader({
               padding: '4px 8px', marginLeft: '-8px', borderRadius: '6px',
             }}
           >
-            <ChevronLeft size={18} />
+            <span className="material-symbols-outlined text-[18px]">chevron_left</span>
             {t('back')}
           </button>
 
@@ -274,7 +273,7 @@ export function EpubChapterReader({
                 width: '100%', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end'
               }}>
                 {t('chapter')} {currentIndex + 1}: {chapter.title}
-                <ChevronLeft size={12} style={{ transform: 'rotate(-90deg)' }} />
+                <span className="material-symbols-outlined text-[12px] rotate-[-90deg]">chevron_left</span>
               </div>
             )}
           </button>
@@ -343,17 +342,10 @@ export function EpubChapterReader({
             <button
               onClick={(e) => { e.stopPropagation(); goPrev(); }}
               disabled={!hasPrev}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '0.4rem',
-                padding: '0.6rem 1rem', borderRadius: '8px',
-                border: `1px solid ${borderColor}`, background: 'transparent',
-                color: hasPrev ? 'var(--accent)' : mutedColor,
-                fontFamily: 'var(--ui-font-family)', fontSize: '0.85rem',
-                cursor: hasPrev ? 'pointer' : 'default', opacity: hasPrev ? 1 : 0.4,
-              }}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-outline-variant/50 bg-transparent text-on-surface hover:bg-surface-variant/30 transition-colors disabled:opacity-40 disabled:cursor-default font-ui-button text-ui-button"
             >
-              <ChevronLeft size={16} />
-              Para
+              <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+              {t('prev')}
             </button>
 
             <span style={{
@@ -366,17 +358,10 @@ export function EpubChapterReader({
             <button
               onClick={(e) => { e.stopPropagation(); goNext(); }}
               disabled={!hasNext}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '0.4rem',
-                padding: '0.6rem 1rem', borderRadius: '8px',
-                border: `1px solid ${borderColor}`, background: 'transparent',
-                color: hasNext ? 'var(--accent)' : mutedColor,
-                fontFamily: 'var(--ui-font-family)', fontSize: '0.85rem',
-                cursor: hasNext ? 'pointer' : 'default', opacity: hasNext ? 1 : 0.4,
-              }}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-outline-variant/50 bg-transparent text-on-surface hover:bg-surface-variant/30 transition-colors disabled:opacity-40 disabled:cursor-default font-ui-button text-ui-button"
             >
-              Pas
-              <ChevronRight size={16} />
+              {t('next')}
+              <span className="material-symbols-outlined text-[16px]">chevron_right</span>
             </button>
           </div>
         )}
@@ -389,12 +374,12 @@ export function EpubChapterReader({
       }}>
         <div style={{ width: '100%', maxWidth: `${settings.maxWidth}px`, position: 'relative' }}>
           <button
-            className={`fab ${uiVisible ? '' : 'hidden'}`}
+            className={`flex items-center justify-center w-12 h-12 rounded-full bg-surface-variant text-on-surface-variant shadow-md hover:bg-outline-variant/30 transition-all ${uiVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
             onClick={(e) => { e.stopPropagation(); setSettingsOpen(true); }}
             aria-label="Cilësimet"
             style={{ position: 'absolute', bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))', right: `${settings.hPadding}rem`, pointerEvents: 'auto' }}
           >
-            <Settings size={20} />
+            <span className="material-symbols-outlined text-[24px]">settings</span>
           </button>
         </div>
       </div>

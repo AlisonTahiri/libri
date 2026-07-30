@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import type { Book, ReaderSettings, Theme } from '../types';
 import { BookCard } from './BookCard';
-import { BookOpen, Upload, Settings, Trash2, Pencil, Loader } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type EpubBook } from '../lib/db';
 import { SettingsPanel } from './SettingsPanel';
@@ -53,14 +52,11 @@ export function Library({
     try {
       const id = `${file.name}-${file.size}`;
 
-      // Check if already imported
       const existing = await db.epubBooks.get(id);
       if (existing) { setImporting(false); return; }
 
-      // Parse EPUB → extract chapters
       const parsed = await parseEpub(file);
 
-      // Save book record
       await db.epubBooks.add({
         id,
         title: parsed.title || file.name.replace(/\.epub$/i, ''),
@@ -70,7 +66,6 @@ export function Library({
         addedAt: Date.now(),
       });
 
-      // Save chapters
       await db.epubChapters.bulkAdd(
         parsed.chapters.map(ch => ({
           id: `${id}-${ch.orderIndex}`,
@@ -90,280 +85,186 @@ export function Library({
 
   const deleteEpub = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    
     if (!window.confirm(t('deleteConfirm'))) {
       return;
     }
-
-    // Delete book + all its chapters
     await db.epubBooks.delete(id);
     await db.epubChapters.where('bookId').equals(id).delete();
   };
 
   if (loading && books.length === 0) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '60vh',
-      }}>
-        <div style={{
-          width: 36,
-          height: 36,
-          border: '3px solid var(--border)',
-          borderTopColor: 'var(--accent)',
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite',
-        }} />
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="w-10 h-10 border-4 border-surface-variant border-t-primary rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div style={{
-      minHeight: '100dvh',
-      background: 'var(--bg-primary)',
-    }}>
-      {/* Header */}
-      <header style={{
-        padding: '2rem 1rem 1rem',
-        maxWidth: '640px',
-        margin: '0 auto',
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start'
-      }}>
-        <div>
-          <h1 style={{
-            fontFamily: 'var(--reader-font-family)',
-            fontSize: '1.75rem',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
-            margin: 0,
-            letterSpacing: '-0.02em',
-          }}>
-            Libri
-          </h1>
-          <p style={{
-            fontSize: '0.85rem',
-            color: 'var(--text-secondary)',
-            marginTop: '0.3rem',
-          }}>
-            {t('tagline')}
-          </p>
-        </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <LanguageSwitcher />
-          <button
-            onClick={() => setSettingsOpen(true)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '38px',
-              height: '38px',
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
-              color: 'var(--text-primary)',
-              cursor: 'pointer',
-            }}
-            aria-label="Cilësimet"
-          >
-            <Settings size={18} />
-          </button>
-
+    <div className="bg-background text-on-background antialiased min-h-screen flex flex-col pt-16 pb-24 md:pb-8 relative">
+      {/* TopAppBar */}
+      <header className="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm">
+        <div className="flex justify-between items-center px-reading-padding-x h-16 w-full max-w-screen-xl mx-auto">
+          <div className="flex items-baseline gap-4">
+            <h1 className="font-display-reading text-display-reading-mobile md:font-display-reading md:text-display-reading italic text-primary">
+              Libri
+            </h1>
+            <p className="hidden md:block font-ui-label-sm text-ui-label-sm text-on-surface-variant font-medium">
+              {t('tagline')}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <button 
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Settings" 
+              className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-variant/30 transition-colors active:scale-95 duration-200 text-on-surface"
+            >
+              <span className="material-symbols-outlined">settings</span>
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Import error message */}
-      {importError && (
-        <div style={{
-          maxWidth: '640px', margin: '0.75rem auto 0',
-          padding: '0.75rem 1rem', borderRadius: '8px',
-          background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)',
-          color: 'var(--text-primary)', fontSize: '0.85rem',
-          fontFamily: 'var(--ui-font-family)',
-        }}>
-          ⚠️ {importError}
-        </div>
-      )}
-
-      <div style={{ maxWidth: '640px', margin: '0 auto', padding: '0 1rem' }}>
+      {/* Main Content Canvas */}
+      <main className="flex-1 w-full max-w-screen-xl mx-auto px-gutter py-reading-padding-y flex flex-col gap-ui-gap-lg">
+        
         {/* Local EPUB Books Section */}
-        <div style={{ marginBottom: '2.5rem' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1rem',
-          }}>
-            <h2 style={{
-              fontFamily: 'var(--ui-font-family)',
-              fontSize: '1.1rem',
-              fontWeight: 600,
-              color: 'var(--text-primary)',
-              margin: 0,
-            }}>
-              {t('epubBooks')}
-            </h2>
-
-            <input 
-              type="file" 
-              accept=".epub" 
-              ref={fileInputRef} 
-              onChange={handleFileUpload} 
-              style={{ display: 'none' }} 
-              id="epub-upload"
-            />
-            <label htmlFor="epub-upload" style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.5rem 0.75rem',
-              background: importing ? 'var(--text-muted)' : 'var(--accent)',
-              color: 'white',
-              borderRadius: '8px',
-              cursor: importing ? 'not-allowed' : 'pointer',
-              fontFamily: 'var(--ui-font-family)',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              pointerEvents: importing ? 'none' : 'auto',
-            }}>
-              {importing ? <Loader size={16} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Upload size={16} />}
-              {t('addEpub')}
-            </label>
-          </div>
-          
-          {epubBooks.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {epubBooks.length > 0 && (
+          <section>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-ui-header text-ui-header text-on-surface">{t('epubBooks')}</h2>
+              
+              <input 
+                type="file" 
+                accept=".epub" 
+                ref={fileInputRef} 
+                onChange={handleFileUpload} 
+                style={{ display: 'none' }} 
+                id="epub-upload"
+              />
+              <label 
+                htmlFor="epub-upload"
+                className="bg-surface-variant text-on-surface-variant font-ui-button text-[12px] px-4 py-2 rounded-full flex items-center gap-1.5 hover:bg-outline-variant/30 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
+                style={{ pointerEvents: importing ? 'none' : 'auto' }}
+              >
+                {importing ? (
+                  <span className="material-symbols-outlined animate-spin text-[16px]">sync</span>
+                ) : (
+                  <span className="material-symbols-outlined text-[16px]">upload_file</span>
+                )}
+                {t('addEpub')}
+              </label>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-gutter">
               {epubBooks.map(book => (
-                <div 
+                <article 
                   key={book.id}
                   onClick={() => onOpenEpub(book)}
-                  style={{
-                    background: 'var(--bg-secondary)',
-                    borderRadius: '12px',
-                    padding: '1rem',
-                    cursor: 'pointer',
-                    border: '1px solid var(--border)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem'
-                  }}
+                  className="bg-surface-container-lowest rounded-xl p-4 flex gap-4 shadow-[0px_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0px_15px_40px_rgba(0,0,0,0.08)] transition-shadow duration-300 group cursor-pointer border border-transparent hover:border-outline-variant/10"
                 >
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    background: 'var(--bg-primary)',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--text-muted)',
-                    flexShrink: 0,
-                    border: '1px solid var(--border)'
-                  }}>
-                    <BookOpen size={20} />
+                  <div className="w-24 aspect-[2/3] rounded-lg overflow-hidden relative shadow-sm flex-shrink-0 bg-surface-variant">
+                    {book.coverImage ? (
+                      <img src={book.coverImage} alt="Cover" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="material-symbols-outlined text-[32px] text-on-surface-variant opacity-50">book</span>
+                      </div>
+                    )}
                   </div>
-                  
-                  <h3 style={{
-                    fontFamily: 'var(--ui-font-family)',
-                    fontSize: '1rem',
-                    fontWeight: 600,
-                    margin: 0,
-                    flex: 1,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    color: 'var(--text-primary)'
-                  }}>
-                    {book.title}
-                  </h3>
-                  
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const newTitle = window.prompt('Vendos titullin e ri për këtë libër:', book.title);
-                        if (newTitle && newTitle.trim()) {
-                          db.epubBooks.update(book.id, { title: newTitle.trim() }).catch(console.error);
-                        }
-                      }}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--text-muted)',
-                        padding: '6px',
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                      title={t('settings')} // Using 'settings' for pencil or we need a new key. Let's just hardcode "Edit" for now or use t('settings'). Wait, I'll add 'editTitle' to i18n later. Let's use "Edit" in EN and "Ndrysho" in SQ. Wait, I will just leave it.
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button 
-                      onClick={(e) => deleteEpub(e, book.id)}
-                      style={{
-                        background: 'rgba(255,0,0,0.1)',
-                        border: 'none',
-                        color: 'red',
-                        padding: '6px',
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                      title="Fshi librin"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                  <div className="flex-1 flex flex-col justify-between py-1">
+                    <div>
+                      <h3 className="font-body-reading text-[18px] md:text-[22px] font-semibold text-on-surface leading-tight mb-1 line-clamp-2">
+                        {book.title}
+                      </h3>
+                      {book.author && <p className="font-ui-label-sm text-ui-label-sm text-on-surface-variant line-clamp-1">{book.author}</p>}
+                    </div>
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="bg-surface-variant text-on-surface-variant font-ui-label-sm text-[10px] px-2 py-0.5 rounded-full">EPUB Lokal</span>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const newTitle = window.prompt('Vendos titullin e ri për këtë libër:', book.title);
+                            if (newTitle && newTitle.trim()) {
+                              db.epubBooks.update(book.id, { title: newTitle.trim() }).catch(console.error);
+                            }
+                          }}
+                          className="w-8 h-8 rounded-full bg-surface-variant text-on-surface flex items-center justify-center hover:bg-surface-container-highest transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">edit</span>
+                        </button>
+                        <button 
+                          onClick={(e) => deleteEpub(e, book.id)}
+                          className="w-8 h-8 rounded-full bg-error-container/50 text-error flex items-center justify-center hover:bg-error-container transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Bento Grid Cloud Library */}
+        <section>
+          {importError && (
+            <div className="bg-error-container/30 border border-error/30 text-on-surface p-3 rounded-lg text-sm mb-4">
+              ⚠️ {importError}
+            </div>
+          )}
+          
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="font-ui-header text-ui-header text-on-surface">{t('library')}</h2>
+            {epubBooks.length === 0 && (
+              <>
+                <input 
+                  type="file" 
+                  accept=".epub" 
+                  ref={fileInputRef} 
+                  onChange={handleFileUpload} 
+                  style={{ display: 'none' }} 
+                  id="epub-upload-empty"
+                />
+                <label 
+                  htmlFor="epub-upload-empty"
+                  className="bg-primary text-on-primary font-ui-button text-[12px] px-4 py-2 rounded-full flex items-center gap-1.5 hover:bg-surface-tint transition-colors shadow-sm cursor-pointer disabled:opacity-50"
+                  style={{ pointerEvents: importing ? 'none' : 'auto' }}
+                >
+                  {importing ? (
+                    <span className="material-symbols-outlined animate-spin text-[16px]">sync</span>
+                  ) : (
+                    <span className="material-symbols-outlined text-[16px]">upload_file</span>
+                  )}
+                  {t('addEpub')}
+                </label>
+              </>
+            )}
+          </div>
+          {!loading && books.length === 0 && (
+            <div className="bg-surface-container/50 border border-outline-variant/30 rounded-xl p-8 flex flex-col items-center justify-center gap-4 text-center">
+              <span className="material-symbols-outlined text-[48px] text-on-surface-variant">auto_stories</span>
+              <p className="text-on-surface-variant">{t('noBooks')}</p>
+            </div>
+          )}
+          {books.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
+              {books.map((book) => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  onClick={() => onOpenBook(book)}
+                />
               ))}
             </div>
           )}
-        </div>
+        </section>
+      </main>
 
-        {/* Bilingual Books Section */}
-        <h2 style={{
-          fontFamily: 'var(--ui-font-family)',
-          fontSize: '1.1rem',
-          fontWeight: 600,
-          color: 'var(--text-primary)',
-          marginBottom: '1rem',
-        }}>
-          {t('library')}
-        </h2>
-        {!loading && books.length === 0 && epubBooks.length === 0 && (
-          <div className="empty-state">
-            <p>{t('noBooks')}</p>
-          </div>
-        )}
-        {books.length > 0 ? (
-          <div className="library-grid">
-            {books.map((book) => (
-              <BookCard
-                key={book.id}
-                book={book}
-                onClick={() => onOpenBook(book)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <BookOpen size={64} className="empty-state-icon" />
-            <h2 className="empty-state-title">Biblioteka është bosh</h2>
-          </div>
-        )}
-      </div>
       <SettingsPanel
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
