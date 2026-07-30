@@ -275,6 +275,7 @@ export function Library({
         onSetLineHeight={onSetLineHeight}
         onSetMaxWidth={onSetMaxWidth}
         onSetHPadding={onSetHPadding}
+        showReaderSettings={false}
       />
     </div>
   );

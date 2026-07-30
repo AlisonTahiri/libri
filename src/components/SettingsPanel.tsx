@@ -16,6 +16,7 @@ interface SettingsPanelProps {
   onSetHPadding: (hp: number) => void;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
+  showReaderSettings?: boolean;
 }
 
 export function SettingsPanel({
@@ -29,6 +30,7 @@ export function SettingsPanel({
   onSetHPadding,
   isFullscreen,
   onToggleFullscreen,
+  showReaderSettings = true,
 }: SettingsPanelProps) {
   const { t } = useLanguage();
   const [activeSlider, setActiveSlider] = useState<string | null>(null);
@@ -79,7 +81,7 @@ export function SettingsPanel({
             </div>
 
             <div className="px-6 pb-[max(1rem,env(safe-area-inset-bottom))] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] flex-1">
-              <div className="flex flex-col gap-6 py-4 max-w-lg mx-auto">
+              <div className="flex flex-col gap-5 py-4 max-w-lg mx-auto">
                 
                 {/* Language */}
                 <div className={`flex flex-col gap-3 transition-opacity duration-300 ${activeSlider ? 'opacity-0 pointer-events-none' : ''}`}>
@@ -117,7 +119,9 @@ export function SettingsPanel({
                   </div>
                 </div>
 
-                {/* Font Size */}
+                {showReaderSettings && (
+                  <>
+                    {/* Font Size */}
                 <div className={`flex flex-col gap-3 transition-opacity duration-300 ${activeSlider && activeSlider !== 'fontSize' ? 'opacity-0 pointer-events-none' : ''}`}>
                   <div className="flex justify-between items-center">
                     <span className="font-ui-label-sm text-ui-label-sm text-outline uppercase">{t('textSize')}</span>
@@ -201,10 +205,12 @@ export function SettingsPanel({
                     />
                   </div>
                 </div>
+                  </>
+                )}
 
                 {/* Actions */}
-                <div className={`flex flex-col gap-3 mt-2 border-t border-outline-variant/20 pt-6 transition-opacity duration-300 ${activeSlider ? 'opacity-0 pointer-events-none' : ''}`}>
-                  {onToggleFullscreen && (
+                {onToggleFullscreen && (
+                  <div className={`flex flex-col gap-3 mt-4 border-t border-outline-variant/20 pt-4 transition-opacity duration-300 ${activeSlider ? 'opacity-0 pointer-events-none' : ''}`}>
                     <button
                       onClick={onToggleFullscreen}
                       className="flex items-center justify-center gap-2 py-3 rounded-xl border border-outline-variant/30 text-on-surface hover:bg-surface-variant/30 transition-colors font-ui-button text-ui-button w-full"
@@ -212,9 +218,8 @@ export function SettingsPanel({
                       {isFullscreen ? <Minimize className="w-[18px] h-[18px]" /> : <Maximize className="w-[18px] h-[18px]" />}
                       {isFullscreen ? t('exitFullscreen') : t('fullscreen')}
                     </button>
-                  )}
-
-                </div>
+                  </div>
+                )}
 
               </div>
             </div>
