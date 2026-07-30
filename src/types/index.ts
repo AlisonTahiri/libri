@@ -77,3 +77,11 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   maxWidth: 680,
   hPadding: 1.5,
 };
+
+declare global {
+  interface Window {
+    launchQueue?: {
+      setConsumer: (consumer: (launchParams: { files: any[] }) => void) => void;
+    };
+  }
+}

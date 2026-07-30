@@ -61,6 +61,14 @@ export default defineConfig({
             type: 'image/png',
             purpose: 'maskable'
           }
+        ],
+        file_handlers: [
+          {
+            action: '/',
+            accept: {
+              'application/epub+zip': ['.epub']
+            }
+          }
         ]
       }
     })
