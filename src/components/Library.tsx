@@ -7,7 +7,7 @@ import { SettingsPanel } from './SettingsPanel';
 import { parseEpub } from '../services/epubParser';
 import { useLanguage } from '../hooks/useLanguage';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { Settings, Loader2, Upload, Book as BookIcon, Pen, Trash2, BookOpen } from 'lucide-react';
+import { Settings, Loader2, Upload, Book as BookIcon, Pen, Trash2, BookOpen, Zap } from 'lucide-react';
 
 interface LibraryProps {
   books: Book[];
@@ -106,11 +106,13 @@ export function Library({
       {/* TopAppBar */}
       <header className="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm">
         <div className="flex justify-between items-center px-reading-padding-x h-16 w-full max-w-screen-xl mx-auto">
-          <div className="flex items-baseline gap-4">
-            <h1 className="font-display-reading text-display-reading-mobile md:font-display-reading md:text-display-reading italic text-primary">
-              Libri
-            </h1>
-            <p className="hidden md:block font-ui-label-sm text-ui-label-sm text-on-surface-variant font-medium">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2.5">
+              <h1 className="font-display-reading text-3xl md:text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-primary to-tertiary">
+                Libri
+              </h1>
+            </div>
+            <p className="hidden md:block font-ui-label-sm text-ui-label-sm text-on-surface-variant font-medium mt-1">
               {t('tagline')}
             </p>
           </div>
