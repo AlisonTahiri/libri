@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useReader } from './hooks/useReader';
 import { useReaderSettings } from './hooks/useReaderSettings';
 import { Library } from './components/Library';
@@ -33,12 +33,27 @@ function App() {
   const [currentEpub, setCurrentEpub] = useState<EpubBook | null>(null);
   const [epubChapters, setEpubChapters] = useState<EpubChapter[]>([]);
 
+  useEffect(() => {
+    const handlePopState = () => {
+      if (currentEpub) {
+        setCurrentEpub(null);
+        setEpubChapters([]);
+      }
+      if (currentBook) {
+        closeBook();
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [currentEpub, currentBook, closeBook]);
+
   const handleOpenEpub = async (book: EpubBook) => {
     const chs = await db.epubChapters
       .where('bookId').equals(book.id)
       .sortBy('orderIndex');
     setEpubChapters(chs);
     setCurrentEpub(book);
+    window.history.pushState({ view: 'reader' }, '', '#reader');
   };
 
   // If an EPUB book is open, show the EPUB chapter reader
@@ -53,7 +68,14 @@ function App() {
         onSetLineHeight={setLineHeight}
         onSetMaxWidth={setMaxWidth}
         onSetHPadding={setHPadding}
-        onBack={() => { setCurrentEpub(null); setEpubChapters([]); }}
+        onBack={() => { 
+          if (window.history.state?.view === 'reader') {
+            window.history.back();
+          } else {
+            setCurrentEpub(null); 
+            setEpubChapters([]); 
+          }
+        }}
       />
     );
   }
@@ -75,7 +97,13 @@ function App() {
         onGoToChapter={goToChapter}
         onGoToNextChapter={goToNextChapter}
         onGoToPrevChapter={goToPrevChapter}
-        onBackToLibrary={closeBook}
+        onBackToLibrary={() => {
+          if (window.history.state?.view === 'reader') {
+            window.history.back();
+          } else {
+            closeBook();
+          }
+        }}
         onUpdateProgress={updateProgress}
       />
     );

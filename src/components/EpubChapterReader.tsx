@@ -159,8 +159,25 @@ export function EpubChapterReader({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [goNext, goPrev]);
 
-  // Tap zone: Any click toggles UI (except when interacting with selection etc.)
-  const handleContentClick = useCallback(() => {
+  // Tap zone: Any click toggles UI, unless it's a link or selection
+  const handleContentClick = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const anchor = target.closest('a');
+    
+    // If it's an internal link, scroll to it instead of navigating
+    if (anchor && anchor.getAttribute('href')?.startsWith('#')) {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = anchor.getAttribute('href')?.substring(1);
+      if (id) {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+      return;
+    }
+
     // Only toggle UI if the click wasn't part of a selection
     if (window.getSelection()?.toString().length) return;
     

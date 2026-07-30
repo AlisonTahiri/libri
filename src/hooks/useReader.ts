@@ -37,6 +37,7 @@ export function useReader() {
     setLoading(true);
     setError(null);
     setCurrentBook(book);
+    window.history.pushState({ view: 'reader' }, '', '#reader');
     try {
       const chapterList = await fetchChapters(book.id);
       setChapters(chapterList);
