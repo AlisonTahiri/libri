@@ -200,7 +200,6 @@ export function EpubChapterReader({
   const bg = isDark ? '#111827' : isSepia ? '#f4ecd8' : '#FFFFFF';
   const textColor = isDark ? '#F3F4F6' : isSepia ? '#5b4636' : '#111827';
   const mutedColor = isDark ? '#9ca3af' : isSepia ? '#8b6914' : '#6b7280';
-  const borderColor = isDark ? '#374151' : isSepia ? '#d5c8a0' : '#e5e7eb';
 
   return (
     <div style={{ minHeight: '100dvh', background: bg }}>
@@ -214,13 +213,7 @@ export function EpubChapterReader({
 
       {/* Header */}
       <header
-        className="reader-header safe-top"
-        style={{
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 10,
-          background: bg, borderBottom: `1px solid ${borderColor}`,
-          transform: uiVisible ? 'translateY(0)' : 'translateY(-100%)',
-          transition: 'transform 0.25s ease',
-        }}
+        className={`fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm safe-top transition-all duration-300 ${uiVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
         <div style={{
           maxWidth: `${settings.maxWidth}px`, margin: '0 auto',

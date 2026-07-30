@@ -217,7 +217,7 @@ export function Reader({
         alignItems: 'center',
         justifyContent: 'center',
         height: '100dvh',
-        background: 'var(--reader-bg)',
+        background: 'var(--color-background)',
       }}>
         <div style={{
           width: 36,
@@ -236,7 +236,7 @@ export function Reader({
       ref={contentRef}
       style={{
         minHeight: '100dvh',
-        background: 'var(--reader-bg)',
+        background: 'var(--color-background)',
         paddingBottom: '4rem',
       }}
       onTouchStart={handleTouchStart}
@@ -249,7 +249,7 @@ export function Reader({
         </div>
       </div>
 
-      <header className={`reader-header safe-top ${headerHidden ? 'hidden' : ''}`}>
+      <header className={`sticky top-0 z-[90] bg-surface/95 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm safe-top transition-all duration-300 ${headerHidden ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
         <div style={{
           maxWidth: `${settings.maxWidth}px`, margin: '0 auto',
           padding: `10px ${settings.hPadding}rem`,

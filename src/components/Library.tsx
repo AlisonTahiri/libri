@@ -181,7 +181,7 @@ export function Library({
                       {book.author && <p className="font-ui-label-sm text-ui-label-sm text-on-surface-variant line-clamp-1">{book.author}</p>}
                     </div>
                     <div className="mt-4 flex items-center justify-between">
-                      <span className="bg-surface-variant text-on-surface-variant font-ui-label-sm text-[10px] px-2 py-0.5 rounded-full">EPUB Lokal</span>
+                      <span className="bg-tertiary/15 text-tertiary font-ui-label-sm text-[10px] font-semibold px-2 py-0.5 rounded-full">EPUB Lokal</span>
                       <div className="flex items-center gap-2">
                         <button 
                           onClick={(e) => {

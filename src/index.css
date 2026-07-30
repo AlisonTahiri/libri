@@ -97,6 +97,7 @@
 
 /* Sepia Mode Overrides */
 html.sepia {
+  filter: none !important;
   --color-background: #f4ecd8;
   --color-surface: #efe6ce;
   --color-surface-variant: #d5c6ab;
@@ -128,10 +129,8 @@ html.dark {
 
 body {
   -webkit-tap-highlight-color: transparent;
-}
-
-/* Base styles for smooth theme transitions */
-body {
+  background-color: var(--color-background);
+  color: var(--color-on-background);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -155,10 +154,20 @@ body {
 /* Reader specific typography */
 .reader-content {
   font-family: "Lora", serif;
+  font-size: var(--reader-font-size, 18px);
+  line-height: var(--reader-line-height, 1.6);
+  max-width: var(--reader-max-width, 640px);
+  margin: 0 auto;
+  padding: 0 var(--reader-h-padding, 1.5rem);
+  color: var(--color-on-surface);
   text-wrap: pretty;
   font-variant-numeric: oldstyle-nums;
   -webkit-hyphens: auto;
   hyphens: auto;
+}
+
+.reader-paragraph {
+  margin-bottom: 1.5em;
 }
 
 .sentence {

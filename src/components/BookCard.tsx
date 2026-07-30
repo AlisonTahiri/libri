@@ -45,20 +45,20 @@ export function BookCard({ book, onClick }: BookCardProps) {
         )}
         <div className="flex items-center gap-1.5 flex-wrap mt-auto">
           {isOriginal && (
-            <span className="bg-primary/10 text-primary font-ui-label-sm text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+            <span className="bg-gradient-to-br from-[#FFD700] to-[#FFA500] text-[#5c3c00] shadow-sm font-ui-label-sm text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
               <span className="material-symbols-outlined text-[10px]">auto_awesome</span>
               Originals
             </span>
           )}
           {book.level && (
-            <span className="bg-surface-variant text-on-surface-variant font-ui-label-sm text-[9px] px-1.5 py-0.5 rounded-full">
+            <span className="bg-gradient-to-br from-[#a78bfa] to-[#8b5cf6] text-white shadow-sm font-ui-label-sm text-[9px] font-bold px-1.5 py-0.5 rounded-full">
               {book.level}
             </span>
           )}
-          <span className="bg-surface-variant text-on-surface-variant font-ui-label-sm text-[9px] px-1.5 py-0.5 rounded-full">
+          <span className="bg-primary/10 text-primary font-ui-label-sm text-[9px] font-semibold px-1.5 py-0.5 rounded-full">
             {sourceLang} &rarr; {displayTargetLang}
           </span>
-          <span className="bg-surface-variant text-on-surface-variant font-ui-label-sm text-[9px] px-1.5 py-0.5 rounded-full">
+          <span className="bg-secondary/15 text-secondary font-ui-label-sm text-[9px] font-semibold px-1.5 py-0.5 rounded-full">
             {book.total_chapters} Kapituj
           </span>
         </div>
