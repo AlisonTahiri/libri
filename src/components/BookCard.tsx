@@ -20,36 +20,38 @@ export function BookCard({ book, onClick }: BookCardProps) {
 
   const isOriginal = book.author === 'Libri Originals';
   const displayTargetLang = isOriginal ? 'EN/SQ' : targetLang;
-  const displayAuthor = isOriginal ? null : book.author;
 
   return (
     <article 
       onClick={onClick}
       role="button"
       tabIndex={0}
-      className="bg-surface-container-lowest rounded-xl p-3 flex flex-col gap-3 shadow-[0px_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0px_15px_40px_rgba(0,0,0,0.08)] transition-shadow duration-300 group cursor-pointer border border-transparent hover:border-outline-variant/10"
+      className="bg-surface-container-lowest rounded-xl flex flex-col shadow-[0px_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0px_15px_40px_rgba(0,0,0,0.08)] transition-shadow duration-300 group cursor-pointer border border-outline-variant/20 hover:border-outline-variant/40 overflow-hidden"
     >
-      <div className="w-full aspect-[2/3] rounded-lg overflow-hidden shadow-sm relative">
-        <div className="absolute inset-0 bg-surface-variant flex items-center justify-center">
+      <div className="w-full aspect-[2/3] bg-surface-variant flex items-center justify-center relative">
+        {book.cover_url ? (
+          <img src={book.cover_url} alt={book.title} className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
           <span className="material-symbols-outlined text-[48px] text-on-surface-variant opacity-30">book</span>
-        </div>
+        )}
       </div>
-      <div className="flex flex-col px-1">
-        <h3 className="font-body-reading text-[16px] font-semibold text-on-surface leading-tight mb-0.5 truncate" title={book.title}>
+      <div className="flex flex-col p-3 flex-1">
+        <h3 className="font-body-reading text-[16px] font-semibold text-on-surface leading-tight mb-1 truncate" title={book.title}>
           {book.title}
         </h3>
-        {displayAuthor && (
-          <p className="font-ui-label-sm text-[11px] text-on-surface-variant truncate mb-2" title={displayAuthor}>
-            {displayAuthor}
+        
+        {isOriginal ? (
+          <p className="font-ui-label-sm text-[11px] text-primary flex items-center gap-1 mb-3 truncate">
+            <span className="material-symbols-outlined text-[12px]">auto_awesome</span>
+            Originals
           </p>
-        )}
+        ) : book.author ? (
+          <p className="font-ui-label-sm text-[11px] text-on-surface-variant truncate mb-3" title={book.author}>
+            {book.author}
+          </p>
+        ) : null}
+
         <div className="flex items-center gap-1.5 flex-wrap mt-auto">
-          {isOriginal && (
-            <span className="bg-gradient-to-br from-[#FFD700] to-[#FFA500] text-[#5c3c00] shadow-sm font-ui-label-sm text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-              <span className="material-symbols-outlined text-[10px]">auto_awesome</span>
-              Originals
-            </span>
-          )}
           {book.level && (
             <span className="bg-gradient-to-br from-[#a78bfa] to-[#8b5cf6] text-white shadow-sm font-ui-label-sm text-[9px] font-bold px-1.5 py-0.5 rounded-full">
               {book.level}
@@ -59,7 +61,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
             {sourceLang} &rarr; {displayTargetLang}
           </span>
           <span className="bg-secondary/15 text-secondary font-ui-label-sm text-[9px] font-semibold px-1.5 py-0.5 rounded-full">
-            {book.total_chapters} Kapituj
+            {book.total_chapters} Chapters
           </span>
         </div>
       </div>
