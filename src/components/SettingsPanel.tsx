@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Theme, ReaderSettings } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { Sun, Moon, Coffee, Type, AlignJustify, MoveHorizontal, Indent, Maximize, Minimize, ArrowLeft } from 'lucide-react';
+import { Sun, Moon, Coffee, Type, AlignJustify, MoveHorizontal, Indent, Maximize, Minimize, X } from 'lucide-react';
 
 interface SettingsPanelProps {
   open: boolean;
@@ -15,7 +15,6 @@ interface SettingsPanelProps {
   onSetHPadding: (hp: number) => void;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
-  onBackToLibrary?: () => void;
 }
 
 export function SettingsPanel({
@@ -29,7 +28,6 @@ export function SettingsPanel({
   onSetHPadding,
   isFullscreen,
   onToggleFullscreen,
-  onBackToLibrary,
 }: SettingsPanelProps) {
   const { t } = useLanguage();
 
@@ -49,15 +47,23 @@ export function SettingsPanel({
 
           {/* Panel */}
           <motion.div
-            className="fixed bottom-0 left-0 w-full z-[101] bg-surface/90 backdrop-blur-2xl border-t border-outline-variant/20 rounded-t-[24px] shadow-[0px_-20px_40px_rgba(0,0,0,0.1)] flex flex-col max-h-[90vh]"
+            className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-[800px] z-[101] bg-surface/90 backdrop-blur-2xl border-t sm:border-x border-outline-variant/20 rounded-t-[24px] shadow-[0px_-20px_40px_rgba(0,0,0,0.1)] flex flex-col max-h-[90vh]"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
           >
-            {/* Handle */}
-            <div className="w-full flex justify-center pt-3 pb-2 flex-shrink-0">
-              <div className="w-12 h-1.5 bg-outline-variant/40 rounded-full" />
+            {/* Handle & Close Button */}
+            <div className="w-full flex justify-between items-start pt-3 pb-2 px-4 flex-shrink-0 relative">
+              <div className="w-10" /> {/* Spacer */}
+              <div className="w-12 h-1.5 bg-outline-variant/40 rounded-full mt-2" />
+              <button
+                onClick={onClose}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-variant/50 text-on-surface-variant hover:bg-surface-variant transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             <div className="px-6 pb-[max(1rem,env(safe-area-inset-bottom))] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] flex-1">
@@ -192,15 +198,6 @@ export function SettingsPanel({
                     </button>
                   )}
 
-                  {onBackToLibrary && (
-                    <button
-                      onClick={() => { onBackToLibrary(); onClose(); }}
-                      className="flex items-center justify-center gap-2 py-3 rounded-xl border border-outline-variant/30 text-on-surface hover:bg-surface-variant/30 transition-colors font-ui-button text-ui-button w-full"
-                    >
-                      <ArrowLeft className="w-[18px] h-[18px]" />
-                      {t('back')}
-                    </button>
-                  )}
                 </div>
 
               </div>

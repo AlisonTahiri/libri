@@ -353,7 +353,6 @@ export function EpubChapterReader({
         onSetHPadding={onSetHPadding}
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
-        onBackToLibrary={onBack}
       />
 
       {/* Chapter Nav */}

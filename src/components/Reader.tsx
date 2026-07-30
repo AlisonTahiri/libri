@@ -364,7 +364,6 @@ export function Reader({
         onSetHPadding={onSetHPadding}
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
-        onBackToLibrary={onBackToLibrary}
       />
 
       {/* Chapter Nav */}
