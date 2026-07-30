@@ -213,21 +213,8 @@ export function Reader({
 
   if (loading && !chapterContent) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100dvh',
-        background: 'var(--color-background)',
-      }}>
-        <div style={{
-          width: 36,
-          height: 36,
-          border: '3px solid var(--border)',
-          borderTopColor: 'var(--accent)',
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite',
-        }} />
+      <div className="flex items-center justify-center min-h-[100dvh] bg-background">
+        <div className="w-9 h-9 border-[3px] border-outline-variant/30 border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
@@ -235,11 +222,7 @@ export function Reader({
   return (
     <div
       ref={contentRef}
-      style={{
-        minHeight: '100dvh',
-        background: 'var(--color-background)',
-        paddingBottom: '4rem',
-      }}
+      className="min-h-[100dvh] bg-background pb-16"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -250,13 +233,11 @@ export function Reader({
         </div>
       </div>
 
-      <header className={`sticky top-0 z-[90] bg-surface/95 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm safe-top transition-all duration-300 ${headerHidden ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
-        <div style={{
-          maxWidth: `${settings.maxWidth}px`, margin: '0 auto',
-          padding: `10px ${settings.hPadding}rem`,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          width: '100%', boxSizing: 'border-box',
-        }}>
+      <header className={`sticky top-0 z-[90] bg-surface/95 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm pt-[max(0.5rem,env(safe-area-inset-top))] transition-all duration-300 ${headerHidden ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+        <div 
+          className="mx-auto flex items-center justify-between w-full box-border"
+          style={{ maxWidth: `${settings.maxWidth}px`, padding: `10px ${settings.hPadding}rem` }}
+        >
           <button
             onClick={() => {
               if (_book && chapterContent) {
@@ -264,13 +245,7 @@ export function Reader({
               }
               onBackToLibrary();
             }}
-            style={{
-              background: 'transparent', border: 'none',
-              color: 'var(--text-muted)', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '4px',
-              fontFamily: 'var(--ui-font-family)', fontSize: '0.85rem',
-              padding: '4px 8px', marginLeft: '-8px', borderRadius: '6px',
-            }}
+            className="flex items-center gap-1 bg-transparent border-none text-on-surface-variant cursor-pointer font-ui-button text-sm py-1 px-2 -ml-2 rounded-md hover:bg-surface-variant/30 transition-colors"
           >
             <ChevronLeft className="w-[18px] h-[18px]" />
             {t('back')}
@@ -281,27 +256,14 @@ export function Reader({
               e.stopPropagation();
               setChaptersOpen(true);
             }}
-            style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
-              maxWidth: '70%', overflow: 'hidden', textAlign: 'right',
-              fontFamily: 'var(--ui-font-family)',
-              background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
-            }}
+            className="flex flex-col items-end max-w-[70%] overflow-hidden text-right font-ui-header bg-transparent border-none cursor-pointer p-0"
             aria-label="Ndërro kapitullin"
           >
-            <div style={{
-              fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)',
-              whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
-              width: '100%',
-            }}>
+            <div className="text-sm font-semibold text-on-surface whitespace-nowrap overflow-hidden text-ellipsis w-full">
               {_book.title}
             </div>
             {chapterContent && (
-              <div style={{
-                fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-muted)', fontStyle: 'italic',
-                whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
-                width: '100%', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end'
-              }}>
+              <div className="text-xs font-normal text-on-surface-variant italic whitespace-nowrap overflow-hidden text-ellipsis w-full mt-0.5 flex items-center justify-end gap-1">
                 {t('chapter')} {currentChapterNum}: {chapterContent.chapter.title}
                 <ChevronDown className="w-3 h-3 ml-1" />
               </div>
@@ -312,32 +274,15 @@ export function Reader({
 
       {/* Chapter Title */}
       {chapterContent && (
-        <div style={{
-          textAlign: 'center',
-          padding: '2.5rem 1.5rem 1rem',
-          maxWidth: 'var(--reader-max-width)',
-          margin: '0 auto',
-        }}>
-          <p style={{
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: 'var(--text-muted)',
-            marginBottom: '0.5rem',
-            fontFamily: 'var(--ui-font-family)',
-          }}>
+        <div 
+          className="text-center pt-10 px-6 pb-4 mx-auto"
+          style={{ maxWidth: `${settings.maxWidth}px` }}
+        >
+          <p className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-2 font-ui-label-sm">
             Kapitulli {currentChapterNum}
           </p>
           {chapterContent.chapter.title && (
-            <h2 style={{
-              fontFamily: 'var(--reader-font-family)',
-              fontSize: '1.4rem',
-              fontWeight: 600,
-              color: 'var(--text-primary)',
-              margin: 0,
-              lineHeight: 1.35,
-            }}>
+            <h2 className="font-display-reading text-2xl font-semibold text-on-surface m-0 leading-snug">
               {chapterContent.chapter.title}
             </h2>
           )}
@@ -355,14 +300,10 @@ export function Reader({
 
       {/* Chapter Navigation Footer */}
       {chapterContent && (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          maxWidth: 'var(--reader-max-width)',
-          margin: '2rem auto 0',
-          padding: '0 var(--reader-h-padding)',
-        }}>
+        <div 
+          className="flex justify-between items-center mt-8 mx-auto"
+          style={{ maxWidth: `${settings.maxWidth}px`, padding: `0 ${settings.hPadding}rem` }}
+        >
           <button
             onClick={handleGoToPrev}
             disabled={!hasPrev}
@@ -372,12 +313,7 @@ export function Reader({
             {t('prev')}
           </button>
 
-          <span style={{
-            fontSize: '0.75rem',
-            color: 'var(--text-muted)',
-            fontFamily: 'var(--ui-font-family)',
-            fontVariantNumeric: 'oldstyle-nums',
-          }}>
+          <span className="text-xs text-on-surface-variant font-ui-label-sm oldstyle-nums">
             {currentChapterNum} / {chapters.length}
           </span>
 
@@ -403,10 +339,7 @@ export function Reader({
       />
 
       {/* FAB Settings */}
-      <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 15,
-        pointerEvents: 'none', display: 'flex', justifyContent: 'center'
-      }}>
+      <div className="fixed bottom-0 left-0 right-0 z-15 pointer-events-none flex justify-center">
         <div style={{ width: '100%', maxWidth: `${settings.maxWidth}px`, position: 'relative' }}>
           <button
             className={`flex items-center justify-center w-12 h-12 rounded-full bg-surface-variant text-on-surface-variant shadow-md hover:bg-outline-variant/30 transition-all ${fabVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}

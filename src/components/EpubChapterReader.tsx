@@ -195,15 +195,10 @@ export function EpubChapterReader({
     created_at: '',
   }));
 
-  // Colors derived from theme
-  const isDark = settings.theme === 'dark';
-  const isSepia = settings.theme === 'sepia';
-  const bg = isDark ? '#111827' : isSepia ? '#f4ecd8' : '#FFFFFF';
-  const textColor = isDark ? '#F3F4F6' : isSepia ? '#5b4636' : '#111827';
-  const mutedColor = isDark ? '#9ca3af' : isSepia ? '#8b6914' : '#6b7280';
+  // We no longer manually calculate bg and text colors since Tailwind utilities handle themes.
 
   return (
-    <div style={{ minHeight: '100dvh', background: bg }}>
+    <div className="min-h-[100dvh] bg-background">
 
       {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 z-[100] flex justify-center h-[3px] bg-transparent">
@@ -214,27 +209,19 @@ export function EpubChapterReader({
 
       {/* Header */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm safe-top transition-all duration-300 ${uiVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
+        className={`fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm pt-[max(0.5rem,env(safe-area-inset-top))] transition-all duration-300 ${uiVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
-        <div style={{
-          maxWidth: `${settings.maxWidth}px`, margin: '0 auto',
-          padding: `10px ${settings.hPadding}rem`,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          width: '100%', boxSizing: 'border-box'
-        }}>
+        <div 
+          className="mx-auto flex items-center justify-between w-full box-border"
+          style={{ maxWidth: `${settings.maxWidth}px`, padding: `10px ${settings.hPadding}rem` }}
+        >
           <button
             onClick={(e) => { 
               e.stopPropagation(); 
               db.epubBooks.update(book.id, { lastScrollPosition: window.scrollY }).catch(console.error);
               onBack(); 
             }}
-            style={{
-              background: 'transparent', border: 'none',
-              color: mutedColor, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '4px',
-              fontFamily: 'var(--ui-font-family)', fontSize: '0.9rem',
-              padding: '4px 8px', marginLeft: '-8px', borderRadius: '6px',
-            }}
+            className="flex items-center gap-1 bg-transparent border-none text-on-surface-variant cursor-pointer font-ui-button text-sm py-1 px-2 -ml-2 rounded-md hover:bg-surface-variant/30 transition-colors"
           >
             <ChevronLeft className="w-[18px] h-[18px]" />
             {t('back')}
@@ -245,27 +232,14 @@ export function EpubChapterReader({
               e.stopPropagation();
               setChaptersOpen(true);
             }}
-            style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
-              maxWidth: '70%', overflow: 'hidden', textAlign: 'right',
-              fontFamily: 'var(--ui-font-family)',
-              background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
-            }}
+            className="flex flex-col items-end max-w-[70%] overflow-hidden text-right font-ui-header bg-transparent border-none cursor-pointer p-0"
             aria-label="Ndërro kapitullin"
           >
-            <div style={{
-              fontSize: '0.85rem', fontWeight: 600, color: textColor,
-              whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
-              width: '100%',
-            }}>
+            <div className="text-sm font-semibold text-on-surface whitespace-nowrap overflow-hidden text-ellipsis w-full">
               {book.title}
             </div>
             {chapter && (
-              <div style={{
-                fontSize: '0.75rem', fontWeight: 400, color: mutedColor, fontStyle: 'italic',
-                whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden',
-                width: '100%', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end'
-              }}>
+              <div className="text-xs font-normal text-on-surface-variant italic whitespace-nowrap overflow-hidden text-ellipsis w-full mt-0.5 flex items-center justify-end gap-1">
                 {t('chapter')} {currentIndex + 1}: {chapter.title}
                 <ChevronDown className="w-3 h-3 ml-1" />
               </div>
@@ -277,10 +251,7 @@ export function EpubChapterReader({
       {/* Main content — scrollable */}
       <div
         ref={contentRef}
-        style={{
-          paddingTop: '64px',   // header height
-          paddingBottom: '80px', // footer height
-        }}
+        className="pt-16 pb-20"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onClick={handleContentClick}
@@ -313,13 +284,12 @@ export function EpubChapterReader({
         {/* Chapter body */}
         {chapter && (
           <div
-            className="epub-chapter-content"
+            className="epub-chapter-content mx-auto text-on-surface"
             style={{
-              maxWidth: `${settings.maxWidth}px`, margin: '0 auto',
+              maxWidth: `${settings.maxWidth}px`,
               padding: `1.5rem ${settings.hPadding}rem 2rem`,
               fontSize: `${settings.fontSize}px`,
               lineHeight: settings.lineHeight,
-              color: textColor,
               fontFamily: 'Literata, Georgia, "Times New Roman", serif',
             }}
             dangerouslySetInnerHTML={{ __html: chapter.htmlContent }}
@@ -328,11 +298,10 @@ export function EpubChapterReader({
 
         {/* Chapter navigation footer */}
         {chapter && (
-          <div style={{
-            maxWidth: `${settings.maxWidth}px`, margin: '0 auto 2rem',
-            padding: `0 ${settings.hPadding}rem`,
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          }}>
+          <div 
+            className="flex justify-between items-center mx-auto mb-8"
+            style={{ maxWidth: `${settings.maxWidth}px`, padding: `0 ${settings.hPadding}rem` }}
+          >
             <button
               onClick={(e) => { e.stopPropagation(); goPrev(); }}
               disabled={!hasPrev}
@@ -342,10 +311,7 @@ export function EpubChapterReader({
               {t('prev')}
             </button>
 
-            <span style={{
-              fontSize: '0.75rem', color: mutedColor,
-              fontFamily: 'var(--ui-font-family)',
-            }}>
+            <span className="text-xs text-on-surface-variant font-ui-label-sm">
               {currentIndex + 1} / {chapters.length}
             </span>
 
@@ -362,10 +328,7 @@ export function EpubChapterReader({
       </div>
 
       {/* FAB Settings */}
-      <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 15,
-        pointerEvents: 'none', display: 'flex', justifyContent: 'center'
-      }}>
+      <div className="fixed bottom-0 left-0 right-0 z-15 pointer-events-none flex justify-center">
         <div style={{ width: '100%', maxWidth: `${settings.maxWidth}px`, position: 'relative' }}>
           <button
             className={`flex items-center justify-center w-12 h-12 rounded-full bg-surface-variant text-on-surface-variant shadow-md hover:bg-outline-variant/30 transition-all ${uiVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}

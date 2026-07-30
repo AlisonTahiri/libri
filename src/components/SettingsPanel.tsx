@@ -60,7 +60,7 @@ export function SettingsPanel({
               <div className="w-12 h-1.5 bg-outline-variant/40 rounded-full" />
             </div>
 
-            <div className="px-6 pb-safe overflow-y-auto hide-scrollbar flex-1">
+            <div className="px-6 pb-[max(1rem,env(safe-area-inset-bottom))] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] flex-1">
               <div className="flex flex-col gap-6 py-4 max-w-lg mx-auto">
                 
                 {/* Language */}

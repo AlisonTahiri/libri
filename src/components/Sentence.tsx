@@ -19,7 +19,7 @@ export function Sentence({ id, text, translation, isActive, onTap }: SentencePro
 
   return (
     <span
-      className={`sentence${isActive ? ' active' : ''}`}
+      className={`cursor-pointer rounded-[3px] transition-all duration-200 ease-in-out py-[1px] px-0 [-webkit-tap-highlight-color:transparent] hover:bg-primary/15 ${isActive ? 'bg-primary/25 ring-2 ring-primary/40' : ''}`}
       onClick={handleClick}
       data-sentence-id={id}
       role="button"

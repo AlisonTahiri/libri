@@ -21,8 +21,8 @@ export function ReaderContent({ paragraphs, activeSentenceId, onSentenceTap }: R
 
   if (paragraphs.length === 0) {
     return (
-      <div className="reader-content">
-        <p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
+      <div className="font-body-reading text-[length:var(--reader-font-size)] leading-[var(--reader-line-height)] max-w-[var(--reader-max-width)] mx-auto px-[var(--reader-h-padding)] text-on-surface text-pretty oldstyle-nums hyphens-auto">
+        <p className="text-on-surface-variant italic">
           Ky kapitull nuk ka përmbajtje ende.
         </p>
       </div>
@@ -30,9 +30,9 @@ export function ReaderContent({ paragraphs, activeSentenceId, onSentenceTap }: R
   }
 
   return (
-    <div className="reader-content">
+    <div className="font-body-reading text-[length:var(--reader-font-size)] leading-[var(--reader-line-height)] max-w-[var(--reader-max-width)] mx-auto px-[var(--reader-h-padding)] text-on-surface text-pretty oldstyle-nums hyphens-auto">
       {paragraphs.map((paragraph) => (
-        <p key={paragraph.id} className="reader-paragraph">
+        <p key={paragraph.id} className="mb-[1.5em]">
           {paragraph.sentences.map((sentence, idx) => {
             const translation = language === 'en' && sentence.translated_text_en 
               ? sentence.translated_text_en 

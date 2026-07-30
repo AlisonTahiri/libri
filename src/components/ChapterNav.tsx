@@ -56,7 +56,7 @@ export function ChapterNav({
               </button>
             </div>
 
-            <div className="px-4 py-2 pb-safe overflow-y-auto hide-scrollbar flex-1 flex flex-col gap-1">
+            <div className="px-4 py-2 pb-[max(1rem,env(safe-area-inset-bottom))] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] flex-1 flex flex-col gap-1">
               {chapters.map((ch) => {
                 const isActive = currentChapterId === ch.id;
                 return (
