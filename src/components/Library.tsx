@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { Book, ReaderSettings, Theme } from '../types';
 import { BookCard } from './BookCard';
+import { ConfirmModal } from './ConfirmModal';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type EpubBook } from '../lib/db';
 import { offlineDb } from '../services/offlineDb';
@@ -48,36 +49,49 @@ export function Library({
   const downloadedBooksData = useLiveQuery(() => offlineDb.downloadedBooks.toArray()) || [];
   const downloadedBookIds = new Set(downloadedBooksData.map(db => db.id));
 
+  type ConfirmAction = 
+    | { type: 'download'; book: Book }
+    | { type: 'remove_download'; book: Book }
+    | { type: 'delete_epub'; bookId: string };
+
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
   const [downloadingBookId, setDownloadingBookId] = useState<string | null>(null);
-  const [bookToConfirm, setBookToConfirm] = useState<Book | null>(null);
 
   const displayedBooks = isOnline ? books : books.filter(b => downloadedBookIds.has(b.id));
 
   const handleDownloadToggle = async (e: React.MouseEvent, book: Book) => {
     e.stopPropagation();
     if (downloadedBookIds.has(book.id)) {
-      if (window.confirm("A jeni i sigurt që doni të hiqni këtë libër nga pajisja?")) {
-        await removeBookDownload(book.id);
-      }
+      setConfirmAction({ type: 'remove_download', book });
     } else {
       if (!isOnline) {
         alert("Ju duhet internet për të shkarkuar libra.");
         return;
       }
-      setBookToConfirm(book);
+      setConfirmAction({ type: 'download', book });
     }
   };
 
-  const confirmDownload = async () => {
-    if (!bookToConfirm) return;
-    setDownloadingBookId(bookToConfirm.id);
-    setBookToConfirm(null);
+  const handleConfirm = async () => {
+    if (!confirmAction) return;
+    
+    const action = confirmAction;
+    setConfirmAction(null);
+
     try {
-      await downloadBook(bookToConfirm.id);
+      if (action.type === 'download') {
+        setDownloadingBookId(action.book.id);
+        await downloadBook(action.book.id);
+        setDownloadingBookId(null);
+      } else if (action.type === 'remove_download') {
+        await removeBookDownload(action.book.id);
+      } else if (action.type === 'delete_epub') {
+        await db.epubBooks.delete(action.bookId);
+        await db.epubChapters.where('bookId').equals(action.bookId).delete();
+      }
     } catch (err) {
-      console.error('Download failed', err);
-      alert('Shkarkimi dështoi.');
-    } finally {
+      console.error('Action failed', err);
+      alert('Veprimi dështoi.');
       setDownloadingBookId(null);
     }
   };
@@ -125,13 +139,9 @@ export function Library({
     }
   };
 
-  const deleteEpub = async (e: React.MouseEvent, id: string) => {
+  const deleteEpub = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (!window.confirm(t('deleteConfirm'))) {
-      return;
-    }
-    await db.epubBooks.delete(id);
-    await db.epubChapters.where('bookId').equals(id).delete();
+    setConfirmAction({ type: 'delete_epub', bookId: id });
   };
 
   if (loading && books.length === 0) {
@@ -320,32 +330,28 @@ export function Library({
         </div>
       )}
 
-      {/* Download Confirmation Modal */}
-      {bookToConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-          <div className="bg-surface-container rounded-2xl p-6 max-w-sm w-full shadow-[0px_20px_40px_rgba(0,0,0,0.2)] border border-outline-variant/20 flex flex-col gap-4">
-            <h3 className="font-ui-header text-xl text-on-surface">Shkarko Libër</h3>
-            <p className="text-on-surface-variant text-sm">
-              Dëshironi të shkarkoni <strong>{bookToConfirm.title}</strong> për lexim offline? 
-              Kjo do të ruajë të gjithë kapitujt në pajisjen tuaj.
-            </p>
-            <div className="flex justify-end gap-2 mt-2">
-              <button 
-                onClick={() => setBookToConfirm(null)}
-                className="px-4 py-2 rounded-full font-ui-button text-sm text-on-surface hover:bg-surface-variant transition-colors"
-              >
-                Anulo
-              </button>
-              <button 
-                onClick={confirmDownload}
-                className="px-4 py-2 rounded-full font-ui-button text-sm bg-primary text-on-primary hover:bg-primary/90 transition-colors shadow-sm"
-              >
-                Shkarko
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Global Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmAction !== null}
+        title={
+          confirmAction?.type === 'download' ? 'Shkarko Libër' :
+          confirmAction?.type === 'remove_download' ? 'Hiq Shkarkimin' :
+          'Fshi Librin EPUB'
+        }
+        description={
+          confirmAction?.type === 'download' ? (
+            <>Dëshironi të shkarkoni <strong>{confirmAction.book.title}</strong> për lexim offline? Kjo do të ruajë të gjithë kapitujt në pajisjen tuaj.</>
+          ) : confirmAction?.type === 'remove_download' ? (
+            <>A jeni i sigurt që doni të hiqni <strong>{confirmAction.book.title}</strong> nga pajisja juaj? Mund ta shkarkoni sërish kur të keni internet.</>
+          ) : (
+            <>{t('deleteConfirm') || 'A jeni i sigurt që doni të fshini këtë libër EPUB?'}</>
+          )
+        }
+        confirmText={confirmAction?.type === 'download' ? 'Shkarko' : 'Fshi'}
+        confirmVariant={confirmAction?.type === 'download' ? 'primary' : 'error'}
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirmAction(null)}
+      />
 
       <SettingsPanel
         open={settingsOpen}
