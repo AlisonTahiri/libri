@@ -14,6 +14,11 @@ import type {
 
 /** Fetch all books */
 export async function fetchBooks(): Promise<Book[]> {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    const cached = await offlineDb.books.orderBy('created_at').reverse().toArray();
+    return cached ?? [];
+  }
+
   try {
     const { data, error } = await supabase
       .from('books')
@@ -44,18 +49,36 @@ export async function fetchBooks(): Promise<Book[]> {
 
 /** Fetch chapters for a book */
 export async function fetchChapters(bookId: string): Promise<Chapter[]> {
-  const { data, error } = await supabase
-    .from('chapters')
-    .select('*')
-    .eq('book_id', bookId)
-    .order('chapter_number', { ascending: true });
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    const cachedChapters = await offlineDb.chapters.where('bookId').equals(bookId).toArray();
+    return cachedChapters.map(c => c.content.chapter).sort((a, b) => a.chapter_number - b.chapter_number);
+  }
 
-  if (error) throw error;
-  return data ?? [];
+  try {
+    const { data, error } = await supabase
+      .from('chapters')
+      .select('*')
+      .eq('book_id', bookId)
+      .order('chapter_number', { ascending: true });
+
+    if (error) throw error;
+    return data ?? [];
+  } catch (err) {
+    const cachedChapters = await offlineDb.chapters.where('bookId').equals(bookId).toArray();
+    if (cachedChapters.length > 0) {
+      return cachedChapters.map(c => c.content.chapter).sort((a, b) => a.chapter_number - b.chapter_number);
+    }
+    throw err;
+  }
 }
 
 /** Fetch full chapter content (paragraphs + sentences), with offline fallback */
 export async function fetchChapterContent(chapterId: string): Promise<ChapterContent | null> {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    const cached = await offlineDb.chapters.get(chapterId);
+    return cached ? cached.content : null;
+  }
+
   // Try online first
   try {
     const { data: chapter, error: chapterError } = await supabase
