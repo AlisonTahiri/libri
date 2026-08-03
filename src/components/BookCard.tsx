@@ -1,9 +1,12 @@
 import type { Book } from '../types';
-import { Book as BookIcon, Sparkles } from 'lucide-react';
+import { Book as BookIcon, Sparkles, CloudDownload, CloudOff, CheckCircle2, Loader2 } from 'lucide-react';
 
 interface BookCardProps {
   book: Book;
   onClick: () => void;
+  isDownloaded?: boolean;
+  isDownloading?: boolean;
+  onDownloadClick?: (e: React.MouseEvent) => void;
 }
 
 const LANGUAGE_ABBREVIATIONS: Record<string, string> = {
@@ -15,7 +18,7 @@ const LANGUAGE_ABBREVIATIONS: Record<string, string> = {
   sq: 'SQ',
 };
 
-export function BookCard({ book, onClick }: BookCardProps) {
+export function BookCard({ book, onClick, isDownloaded, isDownloading, onDownloadClick }: BookCardProps) {
   const sourceLang = LANGUAGE_ABBREVIATIONS[book.source_language] || book.source_language.toUpperCase();
   const targetLang = LANGUAGE_ABBREVIATIONS[book.target_language] || book.target_language.toUpperCase();
 
@@ -27,13 +30,39 @@ export function BookCard({ book, onClick }: BookCardProps) {
       onClick={onClick}
       role="button"
       tabIndex={0}
-      className="bg-surface-container-lowest rounded-xl flex flex-col shadow-[0px_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0px_15px_40px_rgba(0,0,0,0.08)] transition-shadow duration-300 group cursor-pointer border border-outline-variant/20 hover:border-outline-variant/40 overflow-hidden"
+      className="bg-surface-container-lowest rounded-xl flex flex-col shadow-[0px_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0px_15px_40px_rgba(0,0,0,0.08)] transition-shadow duration-300 group cursor-pointer border border-outline-variant/20 hover:border-outline-variant/40 overflow-hidden relative"
     >
       <div className="w-full aspect-[2/3] bg-surface-variant flex items-center justify-center relative">
         {book.cover_url ? (
           <img src={book.cover_url} alt={book.title} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <BookIcon className="w-12 h-12 text-on-surface-variant opacity-30" />
+        )}
+        
+        {/* Download Action Button */}
+        {onDownloadClick && (
+          <button
+            onClick={onDownloadClick}
+            disabled={isDownloading}
+            className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-md transition-all duration-200 z-10 ${
+              isDownloaded 
+                ? 'bg-primary/90 text-on-primary hover:bg-error-container/90 hover:text-error' 
+                : 'bg-surface/70 text-on-surface hover:bg-primary/90 hover:text-on-primary'
+            }`}
+            aria-label={isDownloaded ? "Remove download" : "Download book"}
+          >
+            {isDownloading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : isDownloaded ? (
+              <span className="group-hover:hidden"><CheckCircle2 className="w-4 h-4" /></span>
+            ) : (
+              <CloudDownload className="w-4 h-4" />
+            )}
+            {/* Show CloudOff on hover if downloaded */}
+            {isDownloaded && !isDownloading && (
+              <span className="hidden group-hover:block"><CloudOff className="w-4 h-4" /></span>
+            )}
+          </button>
         )}
       </div>
       <div className="flex flex-col p-3 flex-1">

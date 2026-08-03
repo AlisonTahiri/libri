@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import type { ChapterContent } from '../types';
+import type { ChapterContent, Book } from '../types';
 
 /** Cached chapter for offline reading */
 export interface CachedChapter {
@@ -10,13 +10,25 @@ export interface CachedChapter {
   cachedAt: number;     // timestamp
 }
 
+export interface DownloadedBook {
+  id: string;
+  downloadedAt: number;
+}
+
 class LibriDB extends Dexie {
   chapters!: Table<CachedChapter>;
+  books!: Table<Book>;
+  downloadedBooks!: Table<DownloadedBook>;
 
   constructor() {
     super('libri');
     this.version(1).stores({
       chapters: 'id, bookId, chapterNumber',
+    });
+    this.version(2).stores({
+      chapters: 'id, bookId, chapterNumber',
+      books: 'id, created_at',
+      downloadedBooks: 'id, downloadedAt',
     });
   }
 }

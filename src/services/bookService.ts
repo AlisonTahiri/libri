@@ -14,13 +14,32 @@ import type {
 
 /** Fetch all books */
 export async function fetchBooks(): Promise<Book[]> {
-  const { data, error } = await supabase
-    .from('books')
-    .select('*')
-    .order('created_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('books')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  if (error) throw error;
-  return data ?? [];
+    if (error) throw error;
+    
+    if (data && data.length > 0) {
+      try {
+        await offlineDb.books.bulkPut(data);
+      } catch (e) {
+        console.error('Failed to cache books', e);
+      }
+    }
+    return data ?? [];
+  } catch (err) {
+    // Fallback to offline cache
+    try {
+      const cached = await offlineDb.books.orderBy('created_at').reverse().toArray();
+      if (cached && cached.length > 0) return cached;
+    } catch (cacheErr) {
+      console.error('Offline cache error', cacheErr);
+    }
+    throw err;
+  }
 }
 
 /** Fetch chapters for a book */
@@ -157,4 +176,28 @@ export async function prefetchChapters(bookId: string, afterChapterNumber: numbe
   for (const ch of chapters) {
     fetchChapterContent(ch.id).catch(() => {});
   }
+}
+
+/** Download entire book for offline use */
+export async function downloadBook(bookId: string, onProgress?: (progress: number) => void): Promise<void> {
+  const chapters = await fetchChapters(bookId);
+  if (!chapters || chapters.length === 0) return;
+  
+  let completed = 0;
+  for (const ch of chapters) {
+    await fetchChapterContent(ch.id);
+    completed++;
+    if (onProgress) onProgress(Math.round((completed / chapters.length) * 100));
+  }
+  
+  await offlineDb.downloadedBooks.put({
+    id: bookId,
+    downloadedAt: Date.now(),
+  });
+}
+
+/** Remove a downloaded book from offline storage */
+export async function removeBookDownload(bookId: string): Promise<void> {
+  await offlineDb.downloadedBooks.delete(bookId);
+  await offlineDb.chapters.where('bookId').equals(bookId).delete();
 }

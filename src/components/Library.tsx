@@ -3,11 +3,14 @@ import type { Book, ReaderSettings, Theme } from '../types';
 import { BookCard } from './BookCard';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type EpubBook } from '../lib/db';
+import { offlineDb } from '../services/offlineDb';
+import { downloadBook, removeBookDownload } from '../services/bookService';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { SettingsPanel } from './SettingsPanel';
 import { parseEpub } from '../services/epubParser';
 import { useLanguage } from '../hooks/useLanguage';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { Settings, Loader2, Upload, Book as BookIcon, Pen, Trash2, BookOpen } from 'lucide-react';
+import { Settings, Loader2, Upload, Book as BookIcon, Pen, Trash2, BookOpen, WifiOff } from 'lucide-react';
 
 interface LibraryProps {
   books: Book[];
@@ -40,6 +43,44 @@ export function Library({
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const { t } = useLanguage();
+  const isOnline = useNetworkStatus();
+  
+  const downloadedBooksData = useLiveQuery(() => offlineDb.downloadedBooks.toArray()) || [];
+  const downloadedBookIds = new Set(downloadedBooksData.map(db => db.id));
+
+  const [downloadingBookId, setDownloadingBookId] = useState<string | null>(null);
+  const [bookToConfirm, setBookToConfirm] = useState<Book | null>(null);
+
+  const displayedBooks = isOnline ? books : books.filter(b => downloadedBookIds.has(b.id));
+
+  const handleDownloadToggle = async (e: React.MouseEvent, book: Book) => {
+    e.stopPropagation();
+    if (downloadedBookIds.has(book.id)) {
+      if (window.confirm("A jeni i sigurt që doni të hiqni këtë libër nga pajisja?")) {
+        await removeBookDownload(book.id);
+      }
+    } else {
+      if (!isOnline) {
+        alert("Ju duhet internet për të shkarkuar libra.");
+        return;
+      }
+      setBookToConfirm(book);
+    }
+  };
+
+  const confirmDownload = async () => {
+    if (!bookToConfirm) return;
+    setDownloadingBookId(bookToConfirm.id);
+    setBookToConfirm(null);
+    try {
+      await downloadBook(bookToConfirm.id);
+    } catch (err) {
+      console.error('Download failed', err);
+      alert('Shkarkimi dështoi.');
+    } finally {
+      setDownloadingBookId(null);
+    }
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -248,25 +289,63 @@ export function Library({
               </>
             )}
           </div>
-          {!loading && books.length === 0 && (
+          {!loading && displayedBooks.length === 0 && (
             <div className="bg-surface-container/50 border border-outline-variant/30 rounded-xl p-8 flex flex-col items-center justify-center gap-4 text-center">
               <BookOpen className="w-12 h-12 text-on-surface-variant" />
-              <p className="text-on-surface-variant">{t('noBooks')}</p>
+              <p className="text-on-surface-variant">{isOnline ? t('noBooks') : "Nuk keni libra të shkarkuar për lexim pa internet."}</p>
             </div>
           )}
-          {books.length > 0 && (
+          {displayedBooks.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
-              {books.map((book) => (
+              {displayedBooks.map((book) => (
                 <BookCard
                   key={book.id}
                   book={book}
                   onClick={() => onOpenBook(book)}
+                  isDownloaded={downloadedBookIds.has(book.id)}
+                  isDownloading={downloadingBookId === book.id}
+                  onDownloadClick={(e) => handleDownloadToggle(e, book)}
                 />
               ))}
             </div>
           )}
         </section>
       </main>
+
+      {/* Network Status Indicator */}
+      {!isOnline && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-surface-variant text-on-surface-variant px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 shadow-lg z-50 border border-outline-variant/20 backdrop-blur-md">
+          <WifiOff className="w-4 h-4" />
+          Ju jeni offline. Shfaqen vetëm librat e shkarkuar.
+        </div>
+      )}
+
+      {/* Download Confirmation Modal */}
+      {bookToConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <div className="bg-surface-container rounded-2xl p-6 max-w-sm w-full shadow-[0px_20px_40px_rgba(0,0,0,0.2)] border border-outline-variant/20 flex flex-col gap-4">
+            <h3 className="font-ui-header text-xl text-on-surface">Shkarko Libër</h3>
+            <p className="text-on-surface-variant text-sm">
+              Dëshironi të shkarkoni <strong>{bookToConfirm.title}</strong> për lexim offline? 
+              Kjo do të ruajë të gjithë kapitujt në pajisjen tuaj.
+            </p>
+            <div className="flex justify-end gap-2 mt-2">
+              <button 
+                onClick={() => setBookToConfirm(null)}
+                className="px-4 py-2 rounded-full font-ui-button text-sm text-on-surface hover:bg-surface-variant transition-colors"
+              >
+                Anulo
+              </button>
+              <button 
+                onClick={confirmDownload}
+                className="px-4 py-2 rounded-full font-ui-button text-sm bg-primary text-on-primary hover:bg-primary/90 transition-colors shadow-sm"
+              >
+                Shkarko
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SettingsPanel
         open={settingsOpen}
