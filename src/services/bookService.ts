@@ -183,17 +183,82 @@ export async function downloadBook(bookId: string, onProgress?: (progress: numbe
   const chapters = await fetchChapters(bookId);
   if (!chapters || chapters.length === 0) return;
   
-  let completed = 0;
-  for (const ch of chapters) {
-    await fetchChapterContent(ch.id);
-    completed++;
-    if (onProgress) onProgress(Math.round((completed / chapters.length) * 100));
+  const chapterIds = chapters.map(c => c.id);
+  
+  // 1. Fetch all paragraphs for all chapters
+  const { data: paragraphs, error: pError } = await supabase
+    .from('paragraphs')
+    .select('*')
+    .in('chapter_id', chapterIds)
+    .order('order_index', { ascending: true });
+
+  if (pError) throw pError;
+
+  const paragraphIds = (paragraphs ?? []).map((p) => p.id);
+  
+  // 2. Fetch all sentences in batches to avoid URL length limits
+  const BATCH_SIZE = 100;
+  const allSentences: import('../types').Sentence[] = [];
+  
+  for (let i = 0; i < paragraphIds.length; i += BATCH_SIZE) {
+    const batch = paragraphIds.slice(i, i + BATCH_SIZE);
+    const { data: sentences, error: sError } = await supabase
+      .from('sentences')
+      .select('*')
+      .in('paragraph_id', batch)
+      .order('order_index', { ascending: true });
+      
+    if (sError) throw sError;
+    if (sentences) {
+      allSentences.push(...sentences);
+    }
+    if (onProgress) {
+      const progress = Math.round(((i + batch.length) / paragraphIds.length) * 100);
+      onProgress(Math.min(progress, 99));
+    }
+  }
+
+  // 3. Group sentences by paragraph
+  const sentencesByParagraph = new Map<string, import('../types').Sentence[]>();
+  for (const s of allSentences) {
+    const existing = sentencesByParagraph.get(s.paragraph_id) ?? [];
+    existing.push(s);
+    sentencesByParagraph.set(s.paragraph_id, existing);
+  }
+
+  // 4. Group paragraphs by chapter
+  const paragraphsByChapter = new Map<string, import('../types').ParagraphWithSentences[]>();
+  for (const p of (paragraphs ?? [])) {
+    const pWithSentences: import('../types').ParagraphWithSentences = {
+      ...p,
+      sentences: sentencesByParagraph.get(p.id) ?? [],
+    };
+    const existing = paragraphsByChapter.get(p.chapter_id) ?? [];
+    existing.push(pWithSentences);
+    paragraphsByChapter.set(p.chapter_id, existing);
+  }
+  
+  // 5. Cache each chapter
+  for (const chapter of chapters) {
+    const content: import('../types').ChapterContent = {
+      chapter,
+      paragraphs: paragraphsByChapter.get(chapter.id) ?? [],
+    };
+    await offlineDb.chapters.put({
+      id: chapter.id,
+      bookId: chapter.book_id,
+      chapterNumber: chapter.chapter_number,
+      content,
+      cachedAt: Date.now(),
+    });
   }
   
   await offlineDb.downloadedBooks.put({
     id: bookId,
     downloadedAt: Date.now(),
   });
+  
+  if (onProgress) onProgress(100);
 }
 
 /** Remove a downloaded book from offline storage */
