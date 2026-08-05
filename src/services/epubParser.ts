@@ -45,13 +45,40 @@ function resolvePath(base: string, relative: string): string {
 }
 
 /** Strip images and inline styles from an HTML string, return clean text HTML and extracted heading */
-function cleanHtml(rawHtml: string): { html: string; heading: string | null } {
+function cleanHtml(rawHtml: string, formattingClasses?: { bold: Set<string>, italic: Set<string>, underline: Set<string> }): { html: string; heading: string | null } {
   const parser = new DOMParser();
   const doc = parser.parseFromString(rawHtml, 'text/html');
 
   // Try to find the first semantic heading
   let heading = doc.querySelector('h1, h2, h3')?.textContent?.trim() || null;
   
+  // Convert formatting classes to semantic tags before stripping classes
+  if (formattingClasses) {
+    const { bold, italic, underline } = formattingClasses;
+    // Process bottom-up to avoid invalidating child node references when changing innerHTML
+    const elements = Array.from(doc.querySelectorAll('*[class]')).reverse();
+    for (const el of elements) {
+      const classAttr = el.getAttribute('class');
+      if (classAttr) {
+        const classes = classAttr.split(/\s+/);
+        let isBold = false, isItalic = false, isUnderline = false;
+        for (const c of classes) {
+          if (bold.has(c)) isBold = true;
+          if (italic.has(c)) isItalic = true;
+          if (underline.has(c)) isUnderline = true;
+        }
+        
+        if (isBold || isItalic || isUnderline) {
+          let innerHtml = el.innerHTML;
+          if (isBold) innerHtml = `<b>${innerHtml}</b>`;
+          if (isItalic) innerHtml = `<i>${innerHtml}</i>`;
+          if (isUnderline) innerHtml = `<u>${innerHtml}</u>`;
+          el.innerHTML = innerHtml;
+        }
+      }
+    }
+  }
+
   // Remove images, audio, video, script, style elements
   doc.querySelectorAll('img, image, audio, video, script, style, svg').forEach(el => el.remove());
 
@@ -67,7 +94,7 @@ function cleanHtml(rawHtml: string): { html: string; heading: string | null } {
   // Sanitize with DOMPurify
   const clean = DOMPurify.sanitize(body.innerHTML, {
     ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'br', 'hr',
-                   'em', 'strong', 'i', 'b', 'span', 'div', 'blockquote',
+                   'em', 'strong', 'i', 'b', 'u', 'span', 'div', 'blockquote',
                    'ul', 'ol', 'li', 'a', 'sup', 'sub'],
     ALLOWED_ATTR: ['href'],
   });
@@ -177,6 +204,41 @@ export async function parseEpub(file: File): Promise<ParsedEpub> {
       });
     }
   }
+  
+  // ── 3.5 Parse CSS for formatting classes ──
+  const formattingClasses = {
+    bold: new Set<string>(),
+    italic: new Set<string>(),
+    underline: new Set<string>(),
+  };
+
+  for (const entry of Array.from(manifestMap.values())) {
+    if (entry.mediaType === 'text/css') {
+      const cssText = await zip.file(entry.href)?.async('text');
+      if (cssText) {
+        // Find class blocks like: .className { ... font-weight: bold ... }
+        const rules = cssText.match(/\.[^{]+\{[^}]+\}/g) || [];
+        for (const rule of rules) {
+          // match multiple classes separated by comma: .span1, .span2 { ... }
+          const match = rule.match(/((?:\.[a-zA-Z0-9_-]+(?:\s*,\s*)?)+)\s*\{([^}]+)\}/);
+          if (match) {
+            const selectors = match[1].split(',').map(s => s.trim().replace('.', ''));
+            const styles = match[2];
+            
+            const isBold = /font-weight\s*:\s*(bold|[789]00)/i.test(styles);
+            const isItalic = /font-style\s*:\s*italic/i.test(styles);
+            const isUnderline = /text-decoration\s*:\s*underline/i.test(styles);
+            
+            for (const className of selectors) {
+              if (isBold) formattingClasses.bold.add(className);
+              if (isItalic) formattingClasses.italic.add(className);
+              if (isUnderline) formattingClasses.underline.add(className);
+            }
+          }
+        }
+      }
+    }
+  }
 
   // ── 4. Extract each spine chapter as clean HTML ──
   const chapters: ParsedChapter[] = [];
@@ -190,7 +252,7 @@ export async function parseEpub(file: File): Promise<ParsedEpub> {
     const rawHtml = await zip.file(entry.href)?.async('text');
     if (!rawHtml) continue;
 
-    let { html, heading } = cleanHtml(rawHtml);
+    let { html, heading } = cleanHtml(rawHtml, formattingClasses);
     html = html.replace(/<p>\s*<\/p>/g, '');
 
     // Skip chapters with essentially no text content
